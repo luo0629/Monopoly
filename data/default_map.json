@@ -1,0 +1,581 @@
+{
+  "map_info": {
+    "name": "经典大富翁地图",
+    "version": "1.0",
+    "description": "标准40格大富翁游戏地图，包含各种类型的格子",
+    "board_size": 40,
+    "created_by": "系统",
+    "created_date": "2024-01-01"
+  },
+  "cells": [
+    {
+      "position": 0,
+      "name": "起点",
+      "type": "start",
+      "price": 0,
+      "rent": 0,
+      "upgrade_cost": 0,
+      "level": "none",
+      "owner_id": null,
+      "description": "游戏起始位置，经过可获得奖励金",
+      "color_group": "special"
+    },
+    {
+      "position": 1,
+      "name": "台北101",
+      "type": "property",
+      "price": 1200,
+      "rent": 100,
+      "upgrade_cost": 500,
+      "level": "none",
+      "owner_id": null,
+      "description": "台北市的地标建筑",
+      "color_group": "brown"
+    },
+    {
+      "position": 2,
+      "name": "幸运",
+      "type": "chance",
+      "price": 0,
+      "rent": 0,
+      "upgrade_cost": 0,
+      "level": "none",
+      "owner_id": null,
+      "description": "抽取幸运卡片",
+      "color_group": "special"
+    },
+    {
+      "position": 3,
+      "name": "西门町",
+      "type": "property",
+      "price": 1000,
+      "rent": 80,
+      "upgrade_cost": 400,
+      "level": "none",
+      "owner_id": null,
+      "description": "台北著名商圈",
+      "color_group": "brown"
+    },
+    {
+      "position": 4,
+      "name": "税务局",
+      "type": "tax",
+      "price": 0,
+      "rent": 0,
+      "upgrade_cost": 0,
+      "level": "none",
+      "owner_id": null,
+      "description": "缴纳所得税",
+      "color_group": "special"
+    },
+    {
+      "position": 5,
+      "name": "桃园机场",
+      "type": "airport",
+      "price": 2000,
+      "rent": 250,
+      "upgrade_cost": 0,
+      "level": "none",
+      "owner_id": null,
+      "description": "国际机场，租金随拥有机场数量增加",
+      "color_group": "airport"
+    },
+    {
+      "position": 6,
+      "name": "淡水老街",
+      "type": "property",
+      "price": 1400,
+      "rent": 120,
+      "upgrade_cost": 600,
+      "level": "none",
+      "owner_id": null,
+      "description": "新北市著名景点",
+      "color_group": "light_blue"
+    },
+    {
+      "position": 7,
+      "name": "不幸",
+      "type": "misfortune",
+      "price": 0,
+      "rent": 0,
+      "upgrade_cost": 0,
+      "level": "none",
+      "owner_id": null,
+      "description": "抽取不幸卡片",
+      "color_group": "special"
+    },
+    {
+      "position": 8,
+      "name": "九份老街",
+      "type": "property",
+      "price": 1400,
+      "rent": 120,
+      "upgrade_cost": 600,
+      "level": "none",
+      "owner_id": null,
+      "description": "新北市山城景点",
+      "color_group": "light_blue"
+    },
+    {
+      "position": 9,
+      "name": "野柳地质公园",
+      "type": "property",
+      "price": 1600,
+      "rent": 140,
+      "upgrade_cost": 700,
+      "level": "none",
+      "owner_id": null,
+      "description": "新北市地质奇观",
+      "color_group": "light_blue"
+    },
+    {
+      "position": 10,
+      "name": "监狱",
+      "type": "jail",
+      "price": 0,
+      "rent": 0,
+      "upgrade_cost": 0,
+      "level": "none",
+      "owner_id": null,
+      "description": "监狱，暂停游戏数回合",
+      "color_group": "special"
+    },
+    {
+      "position": 11,
+      "name": "日月潭",
+      "type": "property",
+      "price": 1800,
+      "rent": 160,
+      "upgrade_cost": 800,
+      "level": "none",
+      "owner_id": null,
+      "description": "南投著名湖泊景点",
+      "color_group": "pink"
+    },
+    {
+      "position": 12,
+      "name": "电力公司",
+      "type": "utility",
+      "price": 1500,
+      "rent": 0,
+      "upgrade_cost": 0,
+      "level": "none",
+      "owner_id": null,
+      "description": "公用事业，租金根据骰子点数计算",
+      "color_group": "utility"
+    },
+    {
+      "position": 13,
+      "name": "阿里山",
+      "type": "property",
+      "price": 1800,
+      "rent": 160,
+      "upgrade_cost": 800,
+      "level": "none",
+      "owner_id": null,
+      "description": "嘉义著名山岳景点",
+      "color_group": "pink"
+    },
+    {
+      "position": 14,
+      "name": "太鲁阁国家公园",
+      "type": "property",
+      "price": 2000,
+      "rent": 180,
+      "upgrade_cost": 900,
+      "level": "none",
+      "owner_id": null,
+      "description": "花莲峡谷景观",
+      "color_group": "pink"
+    },
+    {
+      "position": 15,
+      "name": "高雄机场",
+      "type": "airport",
+      "price": 2000,
+      "rent": 250,
+      "upgrade_cost": 0,
+      "level": "none",
+      "owner_id": null,
+      "description": "南部国际机场",
+      "color_group": "airport"
+    },
+    {
+      "position": 16,
+      "name": "垦丁国家公园",
+      "type": "property",
+      "price": 2200,
+      "rent": 200,
+      "upgrade_cost": 1000,
+      "level": "none",
+      "owner_id": null,
+      "description": "屏东海滨度假胜地",
+      "color_group": "orange"
+    },
+    {
+      "position": 17,
+      "name": "幸运",
+      "type": "chance",
+      "price": 0,
+      "rent": 0,
+      "upgrade_cost": 0,
+      "level": "none",
+      "owner_id": null,
+      "description": "抽取幸运卡片",
+      "color_group": "special"
+    },
+    {
+      "position": 18,
+      "name": "爱河",
+      "type": "property",
+      "price": 2200,
+      "rent": 200,
+      "upgrade_cost": 1000,
+      "level": "none",
+      "owner_id": null,
+      "description": "高雄市区河流景观",
+      "color_group": "orange"
+    },
+    {
+      "position": 19,
+      "name": "85大楼",
+      "type": "property",
+      "price": 2400,
+      "rent": 220,
+      "upgrade_cost": 1100,
+      "level": "none",
+      "owner_id": null,
+      "description": "高雄地标建筑",
+      "color_group": "orange"
+    },
+    {
+      "position": 20,
+      "name": "医院",
+      "type": "hospital",
+      "price": 0,
+      "rent": 0,
+      "upgrade_cost": 0,
+      "level": "none",
+      "owner_id": null,
+      "description": "医院，需要支付医疗费用并休息",
+      "color_group": "special"
+    },
+    {
+      "position": 21,
+      "name": "清境农场",
+      "type": "property",
+      "price": 2600,
+      "rent": 240,
+      "upgrade_cost": 1200,
+      "level": "none",
+      "owner_id": null,
+      "description": "南投高山农场",
+      "color_group": "red"
+    },
+    {
+      "position": 22,
+      "name": "不幸",
+      "type": "misfortune",
+      "price": 0,
+      "rent": 0,
+      "upgrade_cost": 0,
+      "level": "none",
+      "owner_id": null,
+      "description": "抽取不幸卡片",
+      "color_group": "special"
+    },
+    {
+      "position": 23,
+      "name": "合欢山",
+      "type": "property",
+      "price": 2600,
+      "rent": 240,
+      "upgrade_cost": 1200,
+      "level": "none",
+      "owner_id": null,
+      "description": "南投高山景点",
+      "color_group": "red"
+    },
+    {
+      "position": 24,
+      "name": "玉山国家公园",
+      "type": "property",
+      "price": 2800,
+      "rent": 260,
+      "upgrade_cost": 1300,
+      "level": "none",
+      "owner_id": null,
+      "description": "台湾最高峰",
+      "color_group": "red"
+    },
+    {
+      "position": 25,
+      "name": "台中机场",
+      "type": "airport",
+      "price": 2000,
+      "rent": 250,
+      "upgrade_cost": 0,
+      "level": "none",
+      "owner_id": null,
+      "description": "中部机场",
+      "color_group": "airport"
+    },
+    {
+      "position": 26,
+      "name": "逢甲夜市",
+      "type": "property",
+      "price": 3000,
+      "rent": 280,
+      "upgrade_cost": 1400,
+      "level": "none",
+      "owner_id": null,
+      "description": "台中著名夜市",
+      "color_group": "yellow"
+    },
+    {
+      "position": 27,
+      "name": "彩虹眷村",
+      "type": "property",
+      "price": 3000,
+      "rent": 280,
+      "upgrade_cost": 1400,
+      "level": "none",
+      "owner_id": null,
+      "description": "台中文创景点",
+      "color_group": "yellow"
+    },
+    {
+      "position": 28,
+      "name": "自来水公司",
+      "type": "utility",
+      "price": 1500,
+      "rent": 0,
+      "upgrade_cost": 0,
+      "level": "none",
+      "owner_id": null,
+      "description": "公用事业，租金根据骰子点数计算",
+      "color_group": "utility"
+    },
+    {
+      "position": 29,
+      "name": "高美湿地",
+      "type": "property",
+      "price": 3200,
+      "rent": 300,
+      "upgrade_cost": 1500,
+      "level": "none",
+      "owner_id": null,
+      "description": "台中生态景点",
+      "color_group": "yellow"
+    },
+    {
+      "position": 30,
+      "name": "进监狱",
+      "type": "go_to_jail",
+      "price": 0,
+      "rent": 0,
+      "upgrade_cost": 0,
+      "level": "none",
+      "owner_id": null,
+      "description": "直接进入监狱",
+      "color_group": "special"
+    },
+    {
+      "position": 31,
+      "name": "故宫博物院",
+      "type": "property",
+      "price": 3500,
+      "rent": 350,
+      "upgrade_cost": 1600,
+      "level": "none",
+      "owner_id": null,
+      "description": "台北文化地标",
+      "color_group": "green"
+    },
+    {
+      "position": 32,
+      "name": "中正纪念堂",
+      "type": "property",
+      "price": 3500,
+      "rent": 350,
+      "upgrade_cost": 1600,
+      "level": "none",
+      "owner_id": null,
+      "description": "台北历史建筑",
+      "color_group": "green"
+    },
+    {
+      "position": 33,
+      "name": "幸运",
+      "type": "chance",
+      "price": 0,
+      "rent": 0,
+      "upgrade_cost": 0,
+      "level": "none",
+      "owner_id": null,
+      "description": "抽取幸运卡片",
+      "color_group": "special"
+    },
+    {
+      "position": 34,
+      "name": "龙山寺",
+      "type": "property",
+      "price": 3700,
+      "rent": 370,
+      "upgrade_cost": 1700,
+      "level": "none",
+      "owner_id": null,
+      "description": "台北古老庙宇",
+      "color_group": "green"
+    },
+    {
+      "position": 35,
+      "name": "松山机场",
+      "type": "airport",
+      "price": 2000,
+      "rent": 250,
+      "upgrade_cost": 0,
+      "level": "none",
+      "owner_id": null,
+      "description": "台北市区机场",
+      "color_group": "airport"
+    },
+    {
+      "position": 36,
+      "name": "不幸",
+      "type": "misfortune",
+      "price": 0,
+      "rent": 0,
+      "upgrade_cost": 0,
+      "level": "none",
+      "owner_id": null,
+      "description": "抽取不幸卡片",
+      "color_group": "special"
+    },
+    {
+      "position": 37,
+      "name": "信义商圈",
+      "type": "property",
+      "price": 4000,
+      "rent": 500,
+      "upgrade_cost": 2000,
+      "level": "none",
+      "owner_id": null,
+      "description": "台北最繁华商圈",
+      "color_group": "dark_blue"
+    },
+    {
+      "position": 38,
+      "name": "奢侈税",
+      "type": "luxury_tax",
+      "price": 0,
+      "rent": 0,
+      "upgrade_cost": 0,
+      "level": "none",
+      "owner_id": null,
+      "description": "缴纳奢侈税",
+      "color_group": "special"
+    },
+    {
+      "position": 39,
+      "name": "总统府",
+      "type": "landmark",
+      "price": 5000,
+      "rent": 1000,
+      "upgrade_cost": 0,
+      "level": "none",
+      "owner_id": null,
+      "description": "台湾政治中心，最昂贵的地标",
+      "color_group": "dark_blue"
+    }
+  ],
+  "color_groups": {
+    "brown": {
+      "name": "棕色组",
+      "positions": [1, 3],
+      "monopoly_rent_multiplier": 2
+    },
+    "light_blue": {
+      "name": "浅蓝组",
+      "positions": [6, 8, 9],
+      "monopoly_rent_multiplier": 2
+    },
+    "pink": {
+      "name": "粉色组",
+      "positions": [11, 13, 14],
+      "monopoly_rent_multiplier": 2
+    },
+    "orange": {
+      "name": "橙色组",
+      "positions": [16, 18, 19],
+      "monopoly_rent_multiplier": 2
+    },
+    "red": {
+      "name": "红色组",
+      "positions": [21, 23, 24],
+      "monopoly_rent_multiplier": 2
+    },
+    "yellow": {
+      "name": "黄色组",
+      "positions": [26, 27, 29],
+      "monopoly_rent_multiplier": 2
+    },
+    "green": {
+      "name": "绿色组",
+      "positions": [31, 32, 34],
+      "monopoly_rent_multiplier": 2
+    },
+    "dark_blue": {
+      "name": "深蓝组",
+      "positions": [37, 39],
+      "monopoly_rent_multiplier": 2
+    },
+    "airport": {
+      "name": "机场组",
+      "positions": [5, 15, 25, 35],
+      "monopoly_rent_multiplier": 1
+    },
+    "utility": {
+      "name": "公用事业组",
+      "positions": [12, 28],
+      "monopoly_rent_multiplier": 1
+    }
+  },
+  "special_positions": {
+    "start": 0,
+    "jail": 10,
+    "hospital": 20,
+    "go_to_jail": 30
+  },
+  "rent_levels": {
+    "property": {
+      "none": 1.0,
+      "house1": 5.0,
+      "house2": 15.0,
+      "house3": 45.0,
+      "house4": 80.0,
+      "hotel": 120.0
+    },
+    "airport": {
+      "1_owned": 1.0,
+      "2_owned": 2.0,
+      "3_owned": 4.0,
+      "4_owned": 8.0
+    },
+    "utility": {
+      "1_owned": 4,
+      "2_owned": 10
+    }
+  },
+  "game_rules": {
+    "start_bonus": 2000,
+    "jail_fine": 500,
+    "hospital_fee": 1000,
+    "tax_rate": 0.1,
+    "luxury_tax_amount": 2000,
+    "max_houses_per_property": 4,
+    "max_hotels_per_property": 1,
+    "house_shortage_limit": 32,
+    "hotel_shortage_limit": 12
+  }
+}

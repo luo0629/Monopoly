@@ -1,0 +1,12 @@
+# Python标准库模块，无需安装
+# tkinter - GUI库（Python内置）
+# sqlite3 - 数据库库（Python内置）
+
+# 如果需要额外的第三方库，可以在这里添加
+# 例如：
+# pillow==10.0.0  # 图像处理
+# numpy==1.24.0   # 数值计算
+Pillow==10.0.1
+random2==1.0.1
+json5==0.9.14
+typing-extensions==4.8.0
