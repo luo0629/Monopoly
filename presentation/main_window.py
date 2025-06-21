@@ -368,8 +368,6 @@ class GameGUI(EventObserver):
                                        font=('微软雅黑', 14, 'bold'), fill='#FFFFFF')
                 
                 # 绘制GO箭头
-                self.canvas.create_polygon(x+5, y+30, x+25, y+40, x+5, y+50,
-                                         fill='#FFD700', outline='#000000', width=2)
                 self.canvas.create_text(x+35, y+40, text="GO", 
                                        font=('Arial', 12, 'bold'), fill='#000000')
                 
@@ -496,6 +494,47 @@ class GameGUI(EventObserver):
         
         # 绘制玩家
         self._draw_players()
+        
+        # 绘制中央区域的游戏信息
+        self._draw_center_info()
+    
+    def _draw_center_info(self):
+        """在地图中央显示游戏基本信息"""
+        # 计算中央区域
+        center_x = self.canvas_size // 2
+        center_y = self.canvas_size // 2
+        
+        # 创建背景圆形
+        radius = 150
+        self.canvas.create_oval(center_x - radius, center_y - radius, 
+                               center_x + radius, center_y + radius,
+                               fill='#F5F5DC', outline='#FFD700', width=3)
+        
+        # 显示游戏名称
+        self.canvas.create_text(center_x, center_y - 60, text="大富翁", 
+                               font=('微软雅黑', 36, 'bold'), fill='#8B4513')
+        
+        # 显示当前角色
+        current_player = self.game_manager.get_current_player()
+        if current_player:
+            player_text = f"当前角色: {current_player.name}"
+            player_color = self.player_colors[self.game_manager.players.index(current_player) % len(self.player_colors)]
+            
+            # 创建角色信息背景
+            self.canvas.create_rectangle(center_x - 120, center_y - 10, 
+                                       center_x + 120, center_y + 20,
+                                       fill='#FFFFFF', outline=player_color, width=2)
+            
+            self.canvas.create_text(center_x, center_y + 5, text=player_text, 
+                                   font=('微软雅黑', 14), fill=player_color)
+        
+        # 显示回合数
+        turn_text = f"回合数: {self.game_manager.turn_count}"
+        self.canvas.create_rectangle(center_x - 80, center_y + 40, 
+                                   center_x + 80, center_y + 70,
+                                   fill='#FFFFFF', outline='#4169E1', width=2)
+        self.canvas.create_text(center_x, center_y + 55, text=turn_text, 
+                               font=('微软雅黑', 14), fill='#4169E1')
     
     def _get_cell_position(self, index: int, cells_per_side: int, board_size: int) -> tuple:
         """获取格子在画布上的位置"""
