@@ -25,7 +25,7 @@ class GameGUI(EventObserver):
         
         # 界面变量
         self.canvas_size = 800  # 增加画布大小以容纳所有格子
-        self.cell_size = 70     # 适当减小格子大小以优化布局
+        self.cell_size = 72     # 适当减小格子大小以优化布局
         self.player_colors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange']
         self.player_positions = {}  # 玩家在界面上的位置
         
@@ -363,47 +363,56 @@ class GameGUI(EventObserver):
         # 调整board_size以适应新的边框
         adjusted_board_size = board_size - (border_offset * 2)
         
-        # 优化的40格大富翁布局（每边9个格子+4个角落）：
-        # 右下角：0
-        # 下边：1-9 (9个格子)
-        # 左下角：10
-        # 左边：11-19 (9个格子)
-        # 左上角：20
-        # 上边：21-29 (9个格子)
-        # 右上角：30
-        # 右边：31-39 (9个格子)
+        # 标准36格大富翁布局（每边10个格子，角落格子属于两边）：
+        # 右下角（起点）：位置1（索引0）
+        # 下边：位置1-9（索引0-8）(9个格子，不包括角落)
+        # 左下角（监狱）：位置10（索引9）
+        # 左边：位置10-18（索引9-17）(9个格子，不包括角落)
+        # 左上角（免费停车）：位置19（索引18）
+        # 上边：位置19-27（索引18-26）(9个格子，不包括角落)
+        # 右上角（进监狱）：位置28（索引27）
+        # 右边：位置28-36（索引27-35）(9个格子，不包括角落)
         
-        if index == 0:  # 右下角
+        # 将基于0的索引转换为基于1的位置
+        position = index + 1
+        
+            
+        if position == 1:  # 右下角（起点）
             x = base_x + adjusted_board_size - self.cell_size
             y = base_y + adjusted_board_size - self.cell_size
             return x, y
-        elif index <= 9:  # 下边 (1-9)
-            x = base_x + adjusted_board_size - self.cell_size - (index * self.cell_size)
+        elif 1 < position <= 9:  # 下边 (2-9)
+            x = base_x + adjusted_board_size - self.cell_size - ((position - 1) * self.cell_size)
             y = base_y + adjusted_board_size - self.cell_size
             return x, y
-        elif index == 10:  # 左下角
+        elif position == 10:  # 左下角（监狱）
             x = base_x
             y = base_y + adjusted_board_size - self.cell_size
             return x, y
-        elif index <= 19:  # 左边 (11-19)
+        elif 10 < position <= 18:  # 左边 (11-18)
             x = base_x
-            y = base_y + adjusted_board_size - self.cell_size - ((index - 10) * self.cell_size)
+            y = base_y + adjusted_board_size - self.cell_size - ((position - 10) * self.cell_size)
             return x, y
-        elif index == 20:  # 左上角
+        elif position == 19:  # 左上角（免费停车）
             x = base_x
             y = base_y
             return x, y
-        elif index <= 29:  # 上边 (21-29)
-            x = base_x + ((index - 20) * self.cell_size)
+        elif 19 < position <= 27:  # 上边 (20-27)
+            x = base_x + ((position - 19) * self.cell_size)
             y = base_y
             return x, y
-        elif index == 30:  # 右上角
+        elif position == 28:  # 右上角（进监狱）
             x = base_x + adjusted_board_size - self.cell_size
             y = base_y
             return x, y
-        else:  # 右边 (31-39)
+        elif 28 < position <= 36:  # 右边 (29-35)
             x = base_x + adjusted_board_size - self.cell_size
-            y = base_y + ((index - 30) * self.cell_size)
+            y = base_y + ((position - 28) * self.cell_size)
+            return x, y
+        else:
+            # 默认返回起点位置
+            x = base_x + adjusted_board_size - self.cell_size
+            y = base_y + adjusted_board_size - self.cell_size
             return x, y
     
     def _get_cell_color(self, cell_type: CellType) -> str:

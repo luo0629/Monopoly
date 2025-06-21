@@ -22,6 +22,8 @@ class CellType(Enum):
     AIRPORT = "airport"          # 机场
     UTILITY = "utility"          # 公用事业
     LANDMARK = "landmark"        # 地标
+    HOSPITAL = "hospital"        # 医院
+    LUXURY_TAX = "luxury_tax"    # 奢侈税
 
 class PropertyLevel(Enum):
     """房产等级枚举"""

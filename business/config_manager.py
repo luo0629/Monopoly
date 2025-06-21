@@ -57,7 +57,13 @@ class ConfigManager:
         """加载配置"""
         # 首先尝试从数据库加载
         try:
-            config_data = self.db_manager.get_config()
+            # 从数据库加载所有配置项
+            config_data = {}
+            for key in self.default_config.__dict__.keys():
+                value = self.db_manager.get_config(key)
+                if value is not None:
+                    config_data[key] = value
+            
             if config_data:
                 return GameConfig(**config_data)
         except Exception as e:

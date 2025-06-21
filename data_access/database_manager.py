@@ -1,5 +1,6 @@
 import sqlite3
 import os
+import json
 from typing import Optional, List, Dict, Any
 import threading
 
@@ -102,6 +103,31 @@ class DatabaseManager:
         
         self.connection.commit()
     
+    def _load_map_from_json(self) -> List[tuple]:
+        """从JSON配置文件加载地图数据"""
+        try:
+            json_path = os.path.join(os.path.dirname(self.db_path), 'default_map.json')
+            with open(json_path, 'r', encoding='utf-8') as f:
+                map_config = json.load(f)
+            
+            map_data = []
+            for cell in map_config['cells']:
+                map_data.append((
+                    cell['position'],
+                    cell['name'],
+                    cell['type'],
+                    cell['price'],
+                    cell['rent'],
+                    cell['upgrade_cost'],
+                    cell['description']
+                ))
+            
+            return map_data
+        except (FileNotFoundError, json.JSONDecodeError, KeyError) as e:
+            print(f"加载地图配置文件失败: {e}")
+            # 如果配置文件加载失败，返回基本的起点数据
+            return [(0, '起点', 'start', 0, 0, 0, '游戏起始位置')]
+    
     def _insert_default_data(self):
         """插入默认游戏数据"""
         cursor = self.connection.cursor()
@@ -109,46 +135,8 @@ class DatabaseManager:
         # 检查是否已有地图数据
         cursor.execute('SELECT COUNT(*) FROM game_map')
         if cursor.fetchone()[0] == 0:
-            # 插入默认地图数据
-            map_data = [
-                (0, '起点', 'start', 0, 0, 0, '经过起点获得200金币'),
-                (1, '台北', 'property', 600, 50, 300, '台湾首都'),
-                (2, '幸运', 'chance', 0, 0, 0, '抽取幸运卡'),
-                (3, '台中', 'property', 600, 50, 300, '台湾中部城市'),
-                (4, '所得税', 'tax', 0, 0, 0, '缴纳所得税200金币'),
-                (5, '高雄机场', 'airport', 2000, 250, 1000, '机场'),
-                (6, '高雄', 'property', 1000, 90, 500, '台湾南部大城'),
-                (7, '不幸', 'misfortune', 0, 0, 0, '抽取不幸卡'),
-                (8, '花莲', 'property', 1000, 90, 500, '台湾东部城市'),
-                (9, '宜兰', 'property', 1200, 100, 600, '台湾东北部城市'),
-                (10, '监狱', 'jail', 0, 0, 0, '监狱/探监'),
-                (11, '澎湖', 'property', 1400, 110, 700, '台湾离岛'),
-                (12, '电力公司', 'utility', 1500, 0, 0, '公用事业'),
-                (13, '金门', 'property', 1400, 110, 700, '台湾外岛'),
-                (14, '马祖', 'property', 1600, 120, 800, '台湾外岛'),
-                (15, '桃园机场', 'airport', 2000, 250, 1000, '国际机场'),
-                (16, '新竹', 'property', 1800, 140, 900, '科技城市'),
-                (17, '幸运', 'chance', 0, 0, 0, '抽取幸运卡'),
-                (18, '苗栗', 'property', 1800, 140, 900, '台湾西北部城市'),
-                (19, '彰化', 'property', 2000, 150, 1000, '台湾中部城市'),
-                (20, '免费停车', 'free_parking', 0, 0, 0, '免费停车场'),
-                (21, '云林', 'property', 2200, 180, 1100, '农业县市'),
-                (22, '不幸', 'misfortune', 0, 0, 0, '抽取不幸卡'),
-                (23, '嘉义', 'property', 2200, 180, 1100, '台湾中南部城市'),
-                (24, '台南', 'property', 2400, 200, 1200, '古都'),
-                (25, '小港机场', 'airport', 2000, 250, 1000, '高雄机场'),
-                (26, '屏东', 'property', 2600, 220, 1300, '台湾最南端'),
-                (27, '台东', 'property', 2600, 220, 1300, '台湾东南部'),
-                (28, '自来水公司', 'utility', 1500, 0, 0, '公用事业'),
-                (29, '基隆', 'property', 2800, 240, 1400, '北部港口城市'),
-                (30, '进监狱', 'go_to_jail', 0, 0, 0, '直接进监狱'),
-                (31, '南投', 'property', 3000, 260, 1500, '台湾中部山区'),
-                (32, '新北', 'property', 3000, 260, 1500, '台北周边城市'),
-                (33, '幸运', 'chance', 0, 0, 0, '抽取幸运卡'),
-                (34, '桃园', 'property', 3200, 280, 1600, '台湾西北部城市'),
-                (35, '奢侈税', 'tax', 0, 0, 0, '缴纳奢侈税100金币'),
-                (36, '台北101', 'landmark', 4000, 500, 2000, '台北地标建筑'),
-            ]
+            # 从JSON配置文件加载地图数据
+            map_data = self._load_map_from_json()
             
             cursor.executemany('''
                 INSERT INTO game_map (position, name, type, price, rent_base, upgrade_cost, description)
