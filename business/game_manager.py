@@ -28,7 +28,7 @@ class GameManager(EventSubject):
         if not hasattr(self, 'initialized'):
             super().__init__()
             self.db_manager = DatabaseManager()
-            self.config = GameConfig()
+            self.config = self._load_config()
             self.players: List[Player] = []
             self.ai_players: Dict[int, AIPlayer] = {}
             self.map_cells: List[MapCell] = []
@@ -38,8 +38,37 @@ class GameManager(EventSubject):
             self.event_processor = EventProcessor()
             self.game_log: List[str] = []
             self.special_effects: Dict[int, Dict[str, Any]] = {}  # 玩家特殊效果
+            self.last_dice_result: Optional[Tuple[int, int, int]] = None  # 最后一次骰子结果
             self.initialized = True
             self._load_map_data()
+    
+    def _load_config(self) -> GameConfig:
+        """从数据库加载游戏配置"""
+        try:
+            # 从数据库获取配置值
+            config_data = {}
+            config_keys = [
+                'initial_money', 'start_bonus', 'jail_fine', 'tax_rate', 
+                'max_players', 'board_size', 'jail_position', 'hospital_position',
+                'tax_office_position', 'jail_turns', 'hospital_fee', 'min_players',
+                'dice_count', 'dice_sides'
+            ]
+            
+            for key in config_keys:
+                value = self.db_manager.get_config(key)
+                if value is not None:
+                    # 根据键名转换数据类型
+                    if key in ['tax_rate', 'game_speed']:
+                        config_data[key] = float(value)
+                    elif key in ['enable_sound', 'animation_enabled']:
+                        config_data[key] = value.lower() == 'true'
+                    else:
+                        config_data[key] = int(value)
+            
+            return GameConfig.from_dict(config_data)
+        except Exception as e:
+            print(f"加载配置失败，使用默认配置: {e}")
+            return GameConfig()
     
     def _load_map_data(self):
         """从数据库加载地图数据"""
@@ -115,6 +144,8 @@ class GameManager(EventSubject):
         dice1 = random.randint(1, 6)
         dice2 = random.randint(1, 6)
         total = dice1 + dice2
+        # 保存最后一次骰子结果
+        self.last_dice_result = (dice1, dice2, total)
         return dice1, dice2, total
     
     def move_player(self, player: Player, steps: int) -> Dict[str, Any]:
@@ -140,8 +171,10 @@ class GameManager(EventSubject):
     
     def get_cell_at_position(self, position: int) -> Optional[MapCell]:
         """获取指定位置的地图格子"""
+        # 玩家位置从0开始，地图位置从1开始，需要转换
+        map_position = position + 1
         for cell in self.map_cells:
-            if cell.position == position:
+            if cell.position == map_position:
                 return cell
         return None
     
@@ -290,10 +323,13 @@ class GameManager(EventSubject):
     def _handle_go_to_jail(self, player: Player) -> Dict[str, Any]:
         """处理进监狱"""
         player.go_to_jail()
+        message = f"{player.name} 被送进监狱，需要等待 {player.jail_turns} 回合"
+        self._log(message)
+        self.notify({"message": message})
         
         return {
             "type": "go_to_jail",
-            "message": f"{player.name} 被送进监狱"
+            "message": message
         }
     
     def purchase_property(self, player: Player, cell: MapCell) -> bool:
@@ -313,7 +349,10 @@ class GameManager(EventSubject):
         
         if player.buy_property(cell.position, final_price):
             cell.owner_id = player.id
-            self._log(f"{player.name} 购买了 {cell.name}，花费 {final_price} 金币")
+            message = f"{player.name} 购买了 {cell.name}，花费 {final_price} 金币"
+            self._log(message)
+            # 通知界面更新日志
+            self.notify({"message": message, "type": "purchase"})
             return True
         
         return False
@@ -325,7 +364,10 @@ class GameManager(EventSubject):
         
         upgrade_cost = cell.upgrade()
         if upgrade_cost > 0 and player.spend_money(upgrade_cost):
-            self._log(f"{player.name} 升级了 {cell.name}，花费 {upgrade_cost} 金币")
+            message = f"{player.name} 升级了 {cell.name}，花费 {upgrade_cost} 金币"
+            self._log(message)
+            # 通知界面更新日志
+            self.notify({"message": message, "type": "upgrade"})
             return True
         
         return False
@@ -378,11 +420,28 @@ class GameManager(EventSubject):
             jail_action = ai_player.make_jail_decision()
             if jail_action == "pay":
                 if player.try_leave_jail(pay_fine=True):
-                    actions.append({"type": "jail_pay", "message": f"{player.name} 付费出狱"})
+                    message = f"{player.name} 付费出狱"
+                    self._log(message)
+                    self.notify({"message": message})
+                    actions.append({"type": "jail_pay", "message": message})
             elif jail_action == "use_item" and "免狱卡" in player.items:
                 player.items.remove("免狱卡")
                 player.try_leave_jail()
-                actions.append({"type": "jail_item", "message": f"{player.name} 使用免狱卡出狱"})
+                message = f"{player.name} 使用免狱卡出狱"
+                self._log(message)
+                self.notify({"message": message})
+                actions.append({"type": "jail_item", "message": message})
+            elif jail_action == "wait":
+                if not player.try_leave_jail():
+                    message = f"{player.name} 在监狱中等待，剩余 {player.jail_turns} 回合"
+                    self._log(message)
+                    self.notify({"message": message})
+                    actions.append({"type": "jail_wait", "message": message})
+                else:
+                    message = f"{player.name} 监狱期满，自动出狱！"
+                    self._log(message)
+                    self.notify({"message": message})
+                    actions.append({"type": "jail_release", "message": message})
         
         # AI交易决策
         trade_decision = ai_player.make_trade_decision(self.players, self.map_cells)

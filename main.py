@@ -30,6 +30,7 @@ from data_access.database_manager import DatabaseManager
 
 # 导入表示层
 from presentation.main_window import GameGUI
+from presentation.start_page import StartPage
 
 class MonopolyGameApp:
     """大富翁游戏应用程序主类"""
@@ -64,7 +65,8 @@ class MonopolyGameApp:
             # 初始化游戏管理器
             print("初始化游戏管理器...")
             self.game_manager = GameManager()
-            self.game_manager.config = config
+            # 注释掉配置覆盖，让GameManager使用自己正确转换的配置
+            # self.game_manager.config = config
             
             # 初始化统计管理器
             print("初始化统计管理器...")
@@ -74,11 +76,48 @@ class MonopolyGameApp:
             print("初始化状态管理器...")
             self.state_manager = GameStateManager(self.game_manager)
             
-            # 初始化GUI
-            print("初始化用户界面...")
+            self.running = True
+            print("游戏组件初始化完成！")
             
-            # 创建主窗口
-            self.main_window = GameGUI()
+            return True
+            
+        except Exception as e:
+            error_msg = f"初始化失败: {str(e)}"
+            print(error_msg)
+            if self.root:
+                messagebox.showerror("初始化错误", error_msg)
+            return False
+    
+    def run(self):
+        """运行应用程序"""
+        try:
+            print("启动开始页面...")
+            
+            # 创建开始页面
+            start_page = StartPage(
+                on_start_game_callback=self.start_game_with_players,
+                on_load_game_callback=self.load_game_from_save
+            )
+            start_page.run()
+            
+            return True
+            
+        except Exception as e:
+            error_msg = f"启动失败: {str(e)}"
+            print(error_msg)
+            return False
+    
+    def start_game_with_players(self, players_data, initial_money=15000):
+        """使用玩家配置启动游戏"""
+        try:
+            # 初始化游戏组件
+            if not self.initialize():
+                return False
+            
+            print("启动游戏界面...")
+            
+            # 创建游戏窗口并传入玩家数据和初始金币
+            self.main_window = GameGUI(players_data, initial_money)
             self.root = self.main_window.root
             
             # 设置游戏管理器等组件
@@ -93,42 +132,68 @@ class MonopolyGameApp:
             # 启动自动保存线程
             self.start_auto_save_thread()
             
-            self.running = True
-            print("游戏初始化完成！")
-            
-            return True
-            
-        except Exception as e:
-            error_msg = f"初始化失败: {str(e)}"
-            print(error_msg)
-            if self.root:
-                messagebox.showerror("初始化错误", error_msg)
-            return False
-    
-    def run(self):
-        """运行应用程序"""
-        if not self.initialize():
-            return False
-        
-        try:
-            print("启动游戏界面...")
-            
             # 显示欢迎信息
             self.show_welcome_message()
             
-            # 启动主循环
+            # 运行游戏主循环
             self.root.mainloop()
             
         except Exception as e:
-            error_msg = f"运行时错误: {str(e)}"
+            error_msg = f"游戏启动失败: {str(e)}"
             print(error_msg)
-            messagebox.showerror("运行错误", error_msg)
+            if hasattr(self, 'root') and self.root:
+                messagebox.showerror("游戏错误", error_msg)
+        
+        finally:
+            self.cleanup()
+    
+    def load_game_from_save(self, save_name):
+        """从存档加载游戏"""
+        try:
+            # 初始化游戏组件
+            if not self.initialize():
+                return False
+            
+            print(f"正在加载存档: {save_name}")
+            
+            # 加载游戏数据
+            if not self.game_manager.load_game(save_name):
+                messagebox.showerror("加载失败", f"无法加载存档: {save_name}")
+                return False
+            
+            # 创建游戏窗口
+            self.main_window = GameGUI([], 0)  # 空参数，将从存档中恢复
+            self.root = self.main_window.root
+            
+            # 设置游戏管理器等组件
+            self.main_window.game_manager = self.game_manager
+            self.main_window.config_manager = self.config_manager
+            self.main_window.statistics_manager = self.statistics_manager
+            self.main_window.state_manager = self.state_manager
+            
+            # 从存档恢复游戏状态
+            self.main_window.restore_from_loaded_game()
+            
+            # 设置关闭事件处理
+            self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+            
+            # 启动自动保存线程
+            self.start_auto_save_thread()
+            
+            # 显示加载成功信息
+            self.main_window.add_log_message("系统", f"成功加载存档: {save_name}")
+            
+            # 运行游戏主循环
+            self.root.mainloop()
+            
+        except Exception as e:
+            error_msg = f"加载存档失败: {str(e)}"
+            print(error_msg)
+            messagebox.showerror("加载错误", error_msg)
             return False
         
         finally:
             self.cleanup()
-        
-        return True
     
     def show_welcome_message(self):
         """显示欢迎信息"""

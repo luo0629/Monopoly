@@ -13,11 +13,16 @@ from business.events import EventObserver
 class GameGUI(EventObserver):
     """游戏主界面"""
     
-    def __init__(self):
+    def __init__(self, players_data=None, initial_money=15000):
         self.root = tk.Tk()
         self.root.title("大富翁游戏")
         self.root.geometry("1200x800")
         self.root.resizable(True, True)
+        
+        # 玩家配置数据
+        self.players_data = players_data or []
+        # 初始金币设置
+        self.initial_money = initial_money
         
         # 游戏管理器
         self.game_manager = GameManager()
@@ -32,6 +37,10 @@ class GameGUI(EventObserver):
         # 创建界面
         self._create_widgets()
         self._create_menu()
+        
+        # 如果有玩家数据，自动开始游戏
+        if self.players_data:
+            self.root.after(100, self._auto_start_game)
         
         # 绑定事件
         self.root.protocol("WM_DELETE_WINDOW", self._on_closing)
@@ -71,32 +80,10 @@ class GameGUI(EventObserver):
                                bg='lightgreen', relief=tk.RAISED, borderwidth=2)
         self.canvas.pack(pady=10)
         
-        # 控制按钮框架
-        control_frame = ttk.Frame(left_frame)
-        control_frame.pack(fill=tk.X, pady=10)
+        # 移除控制按钮框架（按钮已移动到右侧面板）
         
-        # 骰子按钮
-        self.roll_button = ttk.Button(control_frame, text="投掷骰子", 
-                                     command=self._roll_dice, state=tk.DISABLED)
-        self.roll_button.pack(side=tk.LEFT, padx=5)
-        
-        # 购买按钮
-        self.buy_button = ttk.Button(control_frame, text="购买房产", 
-                                    command=self._buy_property, state=tk.DISABLED)
-        self.buy_button.pack(side=tk.LEFT, padx=5)
-        
-        # 升级按钮
-        self.upgrade_button = ttk.Button(control_frame, text="升级房产", 
-                                        command=self._upgrade_property, state=tk.DISABLED)
-        self.upgrade_button.pack(side=tk.LEFT, padx=5)
-        
-        # 结束回合按钮
-        self.end_turn_button = ttk.Button(control_frame, text="结束回合", 
-                                         command=self._end_turn, state=tk.DISABLED)
-        self.end_turn_button.pack(side=tk.LEFT, padx=5)
-        
-        # 右侧信息面板
-        right_frame = ttk.Frame(main_frame, width=300)
+        # 右侧信息面板 - 增加宽度以容纳完整的玩家信息
+        right_frame = ttk.Frame(main_frame, width=400)
         right_frame.pack(side=tk.RIGHT, fill=tk.Y, padx=(10, 0))
         right_frame.pack_propagate(False)
         
@@ -106,76 +93,201 @@ class GameGUI(EventObserver):
         # 游戏信息
         self._create_game_info_panel(right_frame)
         
+        # 控制按钮面板
+        self._create_control_panel(right_frame)
+        
         # 日志面板
         self._create_log_panel(right_frame)
         
         # 初始化游戏板
         self._draw_board()
     
+    def _create_control_panel(self, parent):
+        """创建控制按钮面板"""
+        control_frame = ttk.LabelFrame(parent, text="🎮 游戏控制", padding=10)
+        control_frame.pack(fill=tk.X, pady=5)
+        
+        # 创建按钮容器 - 使用网格布局
+        button_frame = ttk.Frame(control_frame)
+        button_frame.pack(fill=tk.X)
+        
+        # 骰子按钮
+        self.roll_button = ttk.Button(button_frame, text="🎲 投掷骰子", 
+                                     command=self._roll_dice, state=tk.DISABLED)
+        self.roll_button.pack(fill=tk.X, pady=2)
+        
+        # 购买按钮
+        self.buy_button = ttk.Button(button_frame, text="🏠 购买房产", 
+                                    command=self._buy_property, state=tk.DISABLED)
+        self.buy_button.pack(fill=tk.X, pady=2)
+        
+        # 升级按钮
+        self.upgrade_button = ttk.Button(button_frame, text="⬆️ 升级房产", 
+                                        command=self._upgrade_property, state=tk.DISABLED)
+        self.upgrade_button.pack(fill=tk.X, pady=2)
+        
+        # 结束回合按钮
+        self.end_turn_button = ttk.Button(button_frame, text="✅ 结束回合", 
+                                         command=self._end_turn, state=tk.DISABLED)
+        self.end_turn_button.pack(fill=tk.X, pady=2)
+    
     def _create_player_info_panel(self, parent):
         """创建玩家信息面板"""
-        player_frame = ttk.LabelFrame(parent, text="玩家信息")
+        player_frame = ttk.LabelFrame(parent, text="🎮 玩家信息", padding=10)
         player_frame.pack(fill=tk.X, pady=5)
         
-        # 玩家列表
-        self.player_tree = ttk.Treeview(player_frame, columns=('money', 'properties', 'position'), 
+        # 创建玩家列表容器
+        tree_frame = ttk.Frame(player_frame)
+        tree_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 10))
+        
+        # 玩家列表 - 增强样式，设置最小宽度
+        self.player_tree = ttk.Treeview(tree_frame, columns=('money', 'properties', 'position'), 
                                        show='tree headings', height=6)
-        self.player_tree.heading('#0', text='玩家')
-        self.player_tree.heading('money', text='金钱')
-        self.player_tree.heading('properties', text='房产数')
-        self.player_tree.heading('position', text='位置')
+        # 设置Treeview的最小宽度以确保所有列都能完整显示
+        self.player_tree.configure(selectmode='extended')
         
-        self.player_tree.column('#0', width=80)
-        self.player_tree.column('money', width=80)
-        self.player_tree.column('properties', width=60)
-        self.player_tree.column('position', width=60)
+        # 设置列标题和样式
+        self.player_tree.heading('#0', text='👤 玩家', anchor='w')
+        self.player_tree.heading('money', text='💰 金钱', anchor='center')
+        self.player_tree.heading('properties', text='🏠 房产', anchor='center')
+        self.player_tree.heading('position', text='📍 位置', anchor='center')
         
-        self.player_tree.pack(fill=tk.X, padx=5, pady=5)
+        # 优化列宽 - 增加金钱列宽度以显示完整信息
+        self.player_tree.column('#0', width=80, minwidth=70)
+        self.player_tree.column('money', width=100, minwidth=90, anchor='center')
+        self.player_tree.column('properties', width=60, minwidth=50, anchor='center')
+        self.player_tree.column('position', width=100, minwidth=80, anchor='center')
         
-        # 添加玩家按钮
+        # 添加滚动条
+        tree_scrollbar = ttk.Scrollbar(tree_frame, orient=tk.VERTICAL, command=self.player_tree.yview)
+        self.player_tree.configure(yscrollcommand=tree_scrollbar.set)
+        
+        self.player_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        tree_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        
+        # 添加玩家按钮 - 改进布局
         button_frame = ttk.Frame(player_frame)
-        button_frame.pack(fill=tk.X, padx=5, pady=5)
+        button_frame.pack(fill=tk.X, pady=(5, 0))
         
-        ttk.Button(button_frame, text="添加人类玩家", 
-                  command=self._add_human_player).pack(side=tk.LEFT, padx=2)
-        ttk.Button(button_frame, text="添加AI玩家", 
-                  command=self._add_ai_player).pack(side=tk.LEFT, padx=2)
-        ttk.Button(button_frame, text="开始游戏", 
-                  command=self._start_game).pack(side=tk.LEFT, padx=2)
+        # 游戏控制按钮已移至开始页面
+        # 此处保留其他游戏控制功能的扩展空间
     
     def _create_game_info_panel(self, parent):
         """创建游戏信息面板"""
-        info_frame = ttk.LabelFrame(parent, text="游戏信息")
+        info_frame = ttk.LabelFrame(parent, text="📊 游戏信息", padding=10)
         info_frame.pack(fill=tk.X, pady=5)
         
-        # 当前玩家
-        self.current_player_label = ttk.Label(info_frame, text="当前玩家: 无")
-        self.current_player_label.pack(anchor=tk.W, padx=5, pady=2)
+        # 创建信息网格布局
+        info_grid = ttk.Frame(info_frame)
+        info_grid.pack(fill=tk.X)
         
-        # 回合数
-        self.turn_label = ttk.Label(info_frame, text="回合数: 0")
-        self.turn_label.pack(anchor=tk.W, padx=5, pady=2)
+        # 当前玩家信息 - 突出显示
+        current_player_frame = ttk.Frame(info_grid, relief='solid', borderwidth=1)
+        current_player_frame.pack(fill=tk.X, pady=(0, 8))
         
-        # 骰子结果
-        self.dice_label = ttk.Label(info_frame, text="骰子: -")
-        self.dice_label.pack(anchor=tk.W, padx=5, pady=2)
+        ttk.Label(current_player_frame, text="🎯 当前玩家", 
+                 font=('微软雅黑', 9, 'bold')).pack(anchor=tk.W, padx=8, pady=(5, 2))
+        self.current_player_label = ttk.Label(current_player_frame, text="无", 
+                                            font=('微软雅黑', 10), foreground='#2E8B57')
+        self.current_player_label.pack(anchor=tk.W, padx=15, pady=(0, 5))
         
-        # 当前位置信息
-        self.position_label = ttk.Label(info_frame, text="位置: -")
-        self.position_label.pack(anchor=tk.W, padx=5, pady=2)
+        # 游戏状态信息
+        status_frame = ttk.Frame(info_grid)
+        status_frame.pack(fill=tk.X, pady=(0, 5))
+        
+        # 左列
+        left_col = ttk.Frame(status_frame)
+        left_col.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        
+        ttk.Label(left_col, text="🔄 回合数:", font=('微软雅黑', 8)).pack(anchor=tk.W, pady=1)
+        self.turn_label = ttk.Label(left_col, text="0", font=('微软雅黑', 9, 'bold'), 
+                                   foreground='#4169E1')
+        self.turn_label.pack(anchor=tk.W, padx=10, pady=(0, 5))
+        
+        ttk.Label(left_col, text="🎲 骰子:", font=('微软雅黑', 8)).pack(anchor=tk.W, pady=1)
+        self.dice_label = ttk.Label(left_col, text="-", font=('微软雅黑', 9, 'bold'), 
+                                   foreground='#FF6347')
+        self.dice_label.pack(anchor=tk.W, padx=10)
+        
+        # 右列
+        right_col = ttk.Frame(status_frame)
+        right_col.pack(side=tk.RIGHT, fill=tk.X, expand=True)
+        
+        ttk.Label(right_col, text="📍 当前位置:", font=('微软雅黑', 8)).pack(anchor=tk.W, pady=1)
+        self.position_label = ttk.Label(right_col, text="-", font=('微软雅黑', 9, 'bold'), 
+                                       foreground='#8A2BE2')
+        self.position_label.pack(anchor=tk.W, padx=10, pady=(0, 5))
+        
+        # 游戏状态指示器
+        ttk.Label(right_col, text="⚡ 状态:", font=('微软雅黑', 8)).pack(anchor=tk.W, pady=1)
+        self.game_status_label = ttk.Label(right_col, text="等待开始", font=('微软雅黑', 9, 'bold'), 
+                                          foreground='#FF8C00')
+        self.game_status_label.pack(anchor=tk.W, padx=10)
     
     def _create_log_panel(self, parent):
         """创建日志面板"""
-        log_frame = ttk.LabelFrame(parent, text="游戏日志")
+        log_frame = ttk.LabelFrame(parent, text="📝 游戏日志", padding=5)
         log_frame.pack(fill=tk.BOTH, expand=True, pady=5)
         
-        # 日志文本框
-        self.log_text = tk.Text(log_frame, height=10, wrap=tk.WORD)
-        scrollbar = ttk.Scrollbar(log_frame, orient=tk.VERTICAL, command=self.log_text.yview)
-        self.log_text.configure(yscrollcommand=scrollbar.set)
+        # 日志控制栏
+        control_frame = ttk.Frame(log_frame)
+        control_frame.pack(fill=tk.X, pady=(0, 5))
         
-        self.log_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y, pady=5)
+        # 日志级别过滤
+        ttk.Label(control_frame, text="显示:", font=('微软雅黑', 8)).pack(side=tk.LEFT, padx=(0, 5))
+        
+        self.log_filter_var = tk.StringVar(value="全部")
+        filter_combo = ttk.Combobox(control_frame, textvariable=self.log_filter_var, 
+                                   values=["全部", "重要", "交易", "移动", "系统"], 
+                                   width=8, state="readonly")
+        filter_combo.pack(side=tk.LEFT, padx=(0, 10))
+        filter_combo.bind('<<ComboboxSelected>>', self._filter_logs)
+        
+        # 清空日志按钮
+        clear_btn = ttk.Button(control_frame, text="🗑️ 清空", width=8,
+                              command=self._clear_logs)
+        clear_btn.pack(side=tk.RIGHT, padx=(5, 5))
+        
+        # 导出日志按钮
+        export_btn = ttk.Button(control_frame, text="💾 导出", width=8,
+                               command=self._export_logs)
+        export_btn.pack(side=tk.RIGHT)
+        
+        # 创建文本框和滚动条
+        text_frame = ttk.Frame(log_frame)
+        text_frame.pack(fill=tk.BOTH, expand=True)
+        
+        self.log_text = tk.Text(text_frame, height=12, state=tk.DISABLED, wrap=tk.WORD,
+                               font=('Consolas', 9), bg='#f8f9fa', fg='#333333',
+                               selectbackground='#007acc', selectforeground='white')
+        
+        # 垂直滚动条
+        v_scrollbar = ttk.Scrollbar(text_frame, orient=tk.VERTICAL, command=self.log_text.yview)
+        self.log_text.configure(yscrollcommand=v_scrollbar.set)
+        
+        # 水平滚动条
+        h_scrollbar = ttk.Scrollbar(text_frame, orient=tk.HORIZONTAL, command=self.log_text.xview)
+        self.log_text.configure(xscrollcommand=h_scrollbar.set)
+        
+        # 布局
+        self.log_text.grid(row=0, column=0, sticky='nsew')
+        v_scrollbar.grid(row=0, column=1, sticky='ns')
+        h_scrollbar.grid(row=1, column=0, sticky='ew')
+        
+        text_frame.grid_rowconfigure(0, weight=1)
+        text_frame.grid_columnconfigure(0, weight=1)
+        
+        # 配置日志文本标签样式
+        self.log_text.tag_configure('info', foreground='#0066cc')
+        self.log_text.tag_configure('warning', foreground='#ff8c00', font=('Consolas', 9, 'bold'))
+        self.log_text.tag_configure('error', foreground='#dc3545', font=('Consolas', 9, 'bold'))
+        self.log_text.tag_configure('success', foreground='#28a745', font=('Consolas', 9, 'bold'))
+        self.log_text.tag_configure('trade', foreground='#6f42c1', font=('Consolas', 9, 'italic'))
+        self.log_text.tag_configure('move', foreground='#17a2b8')
+        self.log_text.tag_configure('timestamp', foreground='#6c757d', font=('Consolas', 8))
+        
+        # 存储所有日志用于过滤
+        self.all_logs = []
     
     def _draw_board(self):
         """绘制游戏板"""
@@ -323,14 +435,45 @@ class GameGUI(EventObserver):
                                       font=('微软雅黑', 10, 'bold'), 
                                       anchor=tk.CENTER, fill=text_color)
             
-            # 显示房产等级 - 改进的视觉效果
-            if cell.owner_id is not None and cell.cell_type == CellType.PROPERTY:
-                level_text = "★" * cell.level.value if cell.level.value > 0 else "○"
-                # 添加背景圆圈
-                self.canvas.create_oval(x + 2, y + 2, x + 18, y + 18, 
-                                       fill='#FFFFFF', outline='#000000', width=1)
-                self.canvas.create_text(x + 10, y + 10, text=level_text, 
-                                      font=('Arial', 8, 'bold'), anchor=tk.CENTER, fill='#FF0000')
+            # 显示房产所有权和等级 - 改进的视觉效果
+            if cell.owner_id is not None and cell.cell_type in [CellType.PROPERTY, CellType.AIRPORT, CellType.UTILITY, CellType.LANDMARK]:
+                # 获取玩家颜色
+                owner = self.game_manager.get_player_by_id(cell.owner_id)
+                if owner:
+                    player_index = self.game_manager.players.index(owner)
+                    owner_color = self.player_colors[player_index % len(self.player_colors)]
+                    
+                    # 绘制玩家颜色边框表示所有权
+                    self.canvas.create_rectangle(x + 1, y + 1, x + self.cell_size - 1, y + self.cell_size - 1,
+                                                fill='', outline=owner_color, width=4)
+                    
+                    # 在左上角绘制玩家颜色标识
+                    self.canvas.create_rectangle(x + 3, y + 3, x + 20, y + 20,
+                                                fill=owner_color, outline='#000000', width=2)
+                    
+                    # 在颜色标识中显示玩家名称首字母
+                    initial = owner.name[0] if owner.name else '?'
+                    self.canvas.create_text(x + 11, y + 11, text=initial,
+                                          font=('Arial', 10, 'bold'), anchor=tk.CENTER, fill='white')
+                    
+                    # 显示房产等级（仅限房产类型）- 根据购买者区分样式
+                    if cell.cell_type == CellType.PROPERTY and hasattr(cell, 'level'):
+                        level_text = "★" * cell.level.value if cell.level.value > 0 else "○"
+                        
+                        # 根据玩家颜色定制房屋等级样式
+                        level_bg_color = owner_color
+                        level_border_color = self._get_darker_color(owner_color)
+                        level_text_color = '#FFFFFF' if self._is_dark_color(owner_color) else '#000000'
+                        
+                        # 现代化圆角矩形背景
+                        self.canvas.create_rectangle(x + self.cell_size - 22, y + 2, x + self.cell_size - 2, y + 18,
+                                                    fill=level_bg_color, outline=level_border_color, width=2)
+                        # 添加内部高光效果
+                        self.canvas.create_rectangle(x + self.cell_size - 20, y + 4, x + self.cell_size - 4, y + 8,
+                                                    fill=self._get_lighter_color(owner_color), outline='', width=0)
+                        
+                        self.canvas.create_text(x + self.cell_size - 12, y + 10, text=level_text,
+                                              font=('Arial', 8, 'bold'), anchor=tk.CENTER, fill=level_text_color)
             
             # 显示价格信息（仅房产类格子）- 增强可见性
             if cell.price > 0 and cell.cell_type in [CellType.PROPERTY, CellType.AIRPORT, CellType.LANDMARK]:
@@ -373,7 +516,8 @@ class GameGUI(EventObserver):
         # 右上角（进监狱）：位置28（索引27）
         # 右边：位置28-36（索引27-35）(9个格子，不包括角落)
         
-        # 将基于0的索引转换为基于1的位置
+        # 玩家位置从0开始，地图位置从1开始，需要转换
+        # 位置0对应地图位置1（起点）
         position = index + 1
         
             
@@ -474,9 +618,10 @@ class GameGUI(EventObserver):
             if player.is_bankrupt:
                 continue
             
-            # 获取玩家位置
-            cells_per_side = len(self.game_manager.map_cells) // 4
-            board_size = self.canvas_size - 100
+            # 获取玩家位置 - 使用与_draw_board相同的参数
+            cells_per_side = 10  # 标准大富翁布局每边10个格子
+            border_offset = 20
+            board_size = self.canvas_size - (border_offset * 2)
             cell_x, cell_y = self._get_cell_position(player.position, cells_per_side, board_size)
             
             # 计算玩家在格子内的偏移
@@ -533,73 +678,11 @@ class GameGUI(EventObserver):
             
             messagebox.showinfo("格子信息", info)
     
-    def _add_human_player(self):
-        """添加人类玩家"""
-        if len(self.game_manager.players) >= self.game_manager.config.max_players:
-            messagebox.showwarning("警告", f"玩家数量不能超过{self.game_manager.config.max_players}人")
-            return
-        
-        name = simpledialog.askstring("添加玩家", "请输入玩家姓名:")
-        if name:
-            try:
-                player = self.game_manager.create_player(name, PlayerType.HUMAN)
-                self._update_player_list()
-                self._log(f"添加人类玩家: {name}")
-            except ValueError as e:
-                messagebox.showerror("错误", str(e))
+    # _add_human_player 方法已移除 - 功能已迁移至开始页面
     
-    def _add_ai_player(self):
-        """添加AI玩家"""
-        if len(self.game_manager.players) >= self.game_manager.config.max_players:
-            messagebox.showwarning("警告", f"玩家数量不能超过{self.game_manager.config.max_players}人")
-            return
-        
-        # 选择AI难度
-        difficulty_window = tk.Toplevel(self.root)
-        difficulty_window.title("选择AI难度")
-        difficulty_window.geometry("300x200")
-        difficulty_window.transient(self.root)
-        difficulty_window.grab_set()
-        
-        selected_difficulty = tk.StringVar(value="medium")
-        
-        ttk.Label(difficulty_window, text="请选择AI难度:").pack(pady=10)
-        
-        ttk.Radiobutton(difficulty_window, text="简单", variable=selected_difficulty, 
-                       value="easy").pack(pady=5)
-        ttk.Radiobutton(difficulty_window, text="中等", variable=selected_difficulty, 
-                       value="medium").pack(pady=5)
-        ttk.Radiobutton(difficulty_window, text="困难", variable=selected_difficulty, 
-                       value="hard").pack(pady=5)
-        
-        def confirm():
-            name = f"AI玩家{len(self.game_manager.players) + 1}"
-            try:
-                player = self.game_manager.create_player(name, PlayerType.AI, 
-                                                        ai_difficulty=selected_difficulty.get())
-                self._update_player_list()
-                self._log(f"添加AI玩家: {name} (难度: {selected_difficulty.get()})")
-                difficulty_window.destroy()
-            except ValueError as e:
-                messagebox.showerror("错误", str(e))
-        
-        ttk.Button(difficulty_window, text="确定", command=confirm).pack(pady=10)
-        ttk.Button(difficulty_window, text="取消", 
-                  command=difficulty_window.destroy).pack(pady=5)
+    # _add_ai_player 方法已移除 - 功能已迁移至开始页面
     
-    def _start_game(self):
-        """开始游戏"""
-        if len(self.game_manager.players) < 2:
-            messagebox.showwarning("警告", "至少需要2个玩家才能开始游戏")
-            return
-        
-        if self.game_manager.start_game():
-            self._update_ui_state()
-            self._update_game_info()
-            self._draw_board()
-            self._log("游戏开始！")
-        else:
-            messagebox.showerror("错误", "游戏开始失败")
+    # _start_game 方法已移除 - 功能已迁移至开始页面，现在使用_auto_start_game
     
     def _roll_dice(self):
         """投掷骰子"""
@@ -610,11 +693,11 @@ class GameGUI(EventObserver):
         # 检查是否在监狱
         if current_player.is_in_jail:
             if not current_player.try_leave_jail():
-                self._log(f"{current_player.name} 仍在监狱中，剩余 {current_player.jail_turns} 回合")
+                self._log(f"{current_player.name} 仍在监狱中，剩余 {current_player.jail_turns} 回合", 'warning')
                 self._end_turn()
                 return
             else:
-                self._log(f"{current_player.name} 出狱了！")
+                self._log(f"{current_player.name} 出狱了！", 'success')
         
         # 投掷骰子
         dice1, dice2, total = self.game_manager.roll_dice()
@@ -648,26 +731,26 @@ class GameGUI(EventObserver):
         if result_type == "purchase_option":
             if result["can_purchase"]:
                 self.buy_button.config(state=tk.NORMAL)
-                self._log(f"可以购买 {result['cell'].name}，价格: {result['price']}")
+                self._log(f"可以购买 {result['cell'].name}，价格: {result['price']}", 'trade')
             else:
-                self._log(f"资金不足，无法购买 {result['cell'].name}")
+                self._log(f"资金不足，无法购买 {result['cell'].name}", 'warning')
         
         elif result_type == "upgrade_option":
             if result["can_upgrade"]:
                 self.upgrade_button.config(state=tk.NORMAL)
-                self._log(f"可以升级 {result['cell'].name}，费用: {result['upgrade_cost']}")
+                self._log(f"可以升级 {result['cell'].name}，费用: {result['upgrade_cost']}", 'trade')
             else:
-                self._log(f"无法升级 {result['cell'].name}")
+                self._log(f"无法升级 {result['cell'].name}", 'warning')
         
         elif result_type == "rent_paid":
-            self._log(f"支付租金 {result['rent']} 给 {result['owner']}")
+            self._log(f"支付租金 {result['rent']} 给 {result['owner']}", 'trade')
         
         elif result_type == "chance_event" or result_type == "misfortune_event":
             event_result = result["event_result"]
             self._show_event_dialog(event_result)
         
         elif result_type == "tax_paid":
-            self._log(f"缴纳{result['tax_type']} {result['tax_amount']} 金币")
+            self._log(f"缴纳{result['tax_type']} {result['tax_amount']} 金币", 'trade')
         
         elif result_type == "go_to_jail":
             self._log(result["message"])
@@ -736,7 +819,6 @@ class GameGUI(EventObserver):
             # 购买决策
             if ai_player.make_purchase_decision(cell, self.game_manager.get_game_state_dict()):
                 if self.game_manager.purchase_property(current_player, cell):
-                    self._log(f"AI {current_player.name} 购买了 {cell.name}")
                     self._update_player_list()
                     self._draw_board()
         
@@ -745,7 +827,6 @@ class GameGUI(EventObserver):
             upgrade_position = ai_player.make_upgrade_decision(self.game_manager.map_cells)
             if upgrade_position == cell.position:
                 if self.game_manager.upgrade_property(current_player, cell):
-                    self._log(f"AI {current_player.name} 升级了 {cell.name}")
                     self._update_player_list()
                     self._draw_board()
         
@@ -757,7 +838,7 @@ class GameGUI(EventObserver):
         # 检查破产
         current_player = self.game_manager.get_current_player()
         if current_player and current_player.check_bankruptcy():
-            self._log(f"{current_player.name} 破产了！")
+            self._log(f"{current_player.name} 破产了！", 'error')
             self._update_player_list()
         
         # 切换到下一个玩家
@@ -821,21 +902,151 @@ class GameGUI(EventObserver):
         """更新游戏信息"""
         current_player = self.game_manager.get_current_player()
         if current_player:
-            self.current_player_label.config(text=f"当前玩家: {current_player.name}")
+            self.current_player_label.config(text=f"{current_player.name}")
+            
+            # 更新游戏状态
+            if hasattr(self, 'game_status_label'):
+                self.game_status_label.config(text="游戏进行中", foreground='#28a745')
             
             cell = self.game_manager.get_cell_at_position(current_player.position)
-            position_text = f"位置: {cell.name}" if cell else "位置: 未知"
-            self.position_label.config(text=position_text)
+            if cell:
+                position_text = f"{current_player.position} - {cell.name}"
+                # 根据格子类型设置颜色
+                if hasattr(cell, 'cell_type'):
+                    if cell.cell_type == 'property':
+                        self.position_label.config(text=position_text, foreground='#8A2BE2')
+                    elif cell.cell_type == 'special':
+                        self.position_label.config(text=position_text, foreground='#FF6347')
+                    else:
+                        self.position_label.config(text=position_text, foreground='#17a2b8')
+                else:
+                    self.position_label.config(text=position_text, foreground='#8A2BE2')
+            else:
+                self.position_label.config(text=f"{current_player.position} - 未知", foreground='#dc3545')
         else:
-            self.current_player_label.config(text="当前玩家: 无")
-            self.position_label.config(text="位置: -")
+            self.current_player_label.config(text="无")
+            self.position_label.config(text="-")
+            if hasattr(self, 'game_status_label'):
+                self.game_status_label.config(text="等待开始", foreground='#FF8C00')
         
-        self.turn_label.config(text=f"回合数: {self.game_manager.turn_count}")
+        self.turn_label.config(text=f"{self.game_manager.turn_count}")
+        
+        # 更新骰子显示
+        if hasattr(self.game_manager, 'last_dice_result') and self.game_manager.last_dice_result:
+            dice1, dice2, total = self.game_manager.last_dice_result
+            dice_text = f"骰子: {dice1} + {dice2} = {total}"
+            if total == 12:  # 双6
+                dice_text += " 🎉"
+            elif dice1 == dice2:  # 双数
+                dice_text += " 🎲"
+            self.dice_label.config(text=dice_text)
+        else:
+            self.dice_label.config(text="骰子: -")
     
-    def _log(self, message: str):
-        """添加日志"""
-        self.log_text.insert(tk.END, message + "\n")
+    def _log(self, message, log_type='info'):
+        """添加日志消息"""
+        import datetime
+        timestamp = datetime.datetime.now().strftime("%H:%M:%S")
+        
+        # 存储日志用于过滤
+        log_entry = {
+            'timestamp': timestamp,
+            'message': message,
+            'type': log_type
+        }
+        self.all_logs.append(log_entry)
+        
+        # 显示日志
+        self._display_log_entry(log_entry)
+    
+    def _display_log_entry(self, log_entry):
+        """显示单条日志"""
+        self.log_text.config(state=tk.NORMAL)
+        
+        # 插入时间戳
+        self.log_text.insert(tk.END, f"[{log_entry['timestamp']}] ", 'timestamp')
+        
+        # 根据类型添加图标和样式
+        icons = {
+            'info': '💬 ',
+            'warning': '⚠️ ',
+            'error': '❌ ',
+            'success': '✅ ',
+            'trade': '💰 ',
+            'move': '🚶 ',
+            'system': '⚙️ '
+        }
+        
+        icon = icons.get(log_entry['type'], '📝 ')
+        self.log_text.insert(tk.END, icon + log_entry['message'] + '\n', log_entry['type'])
+        
+        self.log_text.config(state=tk.DISABLED)
         self.log_text.see(tk.END)
+    
+    def _filter_logs(self, event=None):
+        """过滤日志显示"""
+        filter_type = self.log_filter_var.get()
+        
+        self.log_text.config(state=tk.NORMAL)
+        self.log_text.delete(1.0, tk.END)
+        
+        for log_entry in self.all_logs:
+            if filter_type == "全部":
+                self._display_log_entry(log_entry)
+            elif filter_type == "重要" and log_entry['type'] in ['warning', 'error', 'success']:
+                self._display_log_entry(log_entry)
+            elif filter_type == "交易" and log_entry['type'] == 'trade':
+                self._display_log_entry(log_entry)
+            elif filter_type == "移动" and log_entry['type'] == 'move':
+                self._display_log_entry(log_entry)
+            elif filter_type == "系统" and log_entry['type'] == 'system':
+                self._display_log_entry(log_entry)
+        
+        self.log_text.config(state=tk.DISABLED)
+    
+    def _clear_logs(self):
+        """清空日志"""
+        import tkinter.messagebox as msgbox
+        if msgbox.askyesno("确认", "确定要清空所有日志吗？"):
+            self.all_logs.clear()
+            self.log_text.config(state=tk.NORMAL)
+            self.log_text.delete(1.0, tk.END)
+            self.log_text.config(state=tk.DISABLED)
+            self._log("日志已清空", 'system')
+    
+    def _export_logs(self):
+        """导出日志到文件"""
+        import tkinter.filedialog as filedialog
+        import datetime
+        
+        if not self.all_logs:
+            import tkinter.messagebox as msgbox
+            msgbox.showwarning("警告", "没有日志可以导出！")
+            return
+        
+        filename = filedialog.asksaveasfilename(
+            defaultextension=".txt",
+            filetypes=[("文本文件", "*.txt"), ("所有文件", "*.*")],
+            title="导出游戏日志"
+        )
+        
+        if filename:
+            try:
+                with open(filename, 'w', encoding='utf-8') as f:
+                    f.write(f"大富翁游戏日志\n")
+                    f.write(f"导出时间: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+                    f.write("=" * 50 + "\n\n")
+                    
+                    for log_entry in self.all_logs:
+                        f.write(f"[{log_entry['timestamp']}] [{log_entry['type'].upper()}] {log_entry['message']}\n")
+                
+                import tkinter.messagebox as msgbox
+                msgbox.showinfo("成功", f"日志已导出到: {filename}")
+                self._log(f"日志已导出到: {filename}", 'system')
+            except Exception as e:
+                import tkinter.messagebox as msgbox
+                msgbox.showerror("错误", f"导出失败: {str(e)}")
+                self._log(f"日志导出失败: {str(e)}", 'error')
     
     def add_log_message(self, sender: str, message: str):
         """添加日志消息"""
@@ -851,6 +1062,40 @@ class GameGUI(EventObserver):
             self._draw_board()
             self.log_text.delete(1.0, tk.END)
             self._update_ui_state()
+    
+    def _auto_start_game(self):
+        """自动开始游戏（从开始页面传入玩家数据）"""
+        try:
+            # 重置游戏状态
+            self.game_manager.reset_game()
+            
+            # 更新游戏配置中的初始金币
+            self.game_manager.config.initial_money = self.initial_money
+            
+            # 添加玩家
+            for player_data in self.players_data:
+                self.game_manager.create_player(
+                    name=player_data['name'],
+                    player_type=player_data['type']
+                )
+            
+            # 开始游戏
+            self.game_manager.start_game()
+            
+            # 更新界面
+            self._update_player_list()
+            self._update_game_info()
+            self._draw_board()
+            self.log_text.delete(1.0, tk.END)
+            self._update_ui_state()
+            
+            # 添加欢迎消息
+            self._log("游戏开始！")
+            for player_data in self.players_data:
+                self._log(f"玩家 {player_data['name']} ({player_data['type']}) 加入游戏")
+                
+        except Exception as e:
+            messagebox.showerror("错误", f"启动游戏失败: {str(e)}")
     
     def _save_game(self):
         """保存游戏"""
@@ -949,6 +1194,15 @@ class GameGUI(EventObserver):
     
     def _handle_event_notification(self, event_result: Dict[str, Any]):
         """处理事件通知"""
+        # 添加类型检查和调试信息
+        if not isinstance(event_result, dict):
+            print(f"错误：event_result不是字典类型，而是 {type(event_result)}，值为: {event_result}")
+            # 如果是字符串，将其转换为字典格式
+            if isinstance(event_result, str):
+                event_result = {"message": event_result}
+            else:
+                return
+        
         message = event_result.get("message", "")
         if message:
             self._log(message)
@@ -961,6 +1215,74 @@ class GameGUI(EventObserver):
         if messagebox.askokcancel("退出", "确定要退出游戏吗？"):
             self.game_manager.db_manager.close()
             self.root.destroy()
+    
+    def restore_from_loaded_game(self):
+        """从加载的游戏中恢复界面状态"""
+        try:
+            # 更新玩家列表
+            self._update_player_list()
+            
+            # 更新游戏信息
+            self._update_game_info()
+            
+            # 重绘游戏板
+            self._draw_board()
+            
+            # 更新UI状态
+            self._update_ui_state()
+            
+            # 如果游戏正在进行，启用相关按钮
+            if self.game_manager.game_state == GameState.PLAYING:
+                self.roll_button.config(state=tk.NORMAL)
+                self.end_turn_button.config(state=tk.NORMAL)
+                
+            print("游戏状态恢复完成")
+        except Exception as e:
+            print(f"恢复游戏状态时出错: {e}")
+            self._log(f"恢复游戏状态失败: {str(e)}")
+    
+    def _get_darker_color(self, color: str) -> str:
+        """获取更深的颜色"""
+        try:
+            # 移除#号
+            color = color.lstrip('#')
+            # 转换为RGB
+            r, g, b = int(color[0:2], 16), int(color[2:4], 16), int(color[4:6], 16)
+            # 降低亮度
+            r = max(0, int(r * 0.7))
+            g = max(0, int(g * 0.7))
+            b = max(0, int(b * 0.7))
+            return f'#{r:02x}{g:02x}{b:02x}'
+        except:
+            return '#000000'
+    
+    def _get_lighter_color(self, color: str) -> str:
+        """获取更浅的颜色"""
+        try:
+            # 移除#号
+            color = color.lstrip('#')
+            # 转换为RGB
+            r, g, b = int(color[0:2], 16), int(color[2:4], 16), int(color[4:6], 16)
+            # 提高亮度
+            r = min(255, int(r + (255 - r) * 0.5))
+            g = min(255, int(g + (255 - g) * 0.5))
+            b = min(255, int(b + (255 - b) * 0.5))
+            return f'#{r:02x}{g:02x}{b:02x}'
+        except:
+            return '#FFFFFF'
+    
+    def _is_dark_color(self, color: str) -> bool:
+        """判断颜色是否为深色"""
+        try:
+            # 移除#号
+            color = color.lstrip('#')
+            # 转换为RGB
+            r, g, b = int(color[0:2], 16), int(color[2:4], 16), int(color[4:6], 16)
+            # 计算亮度
+            brightness = (r * 299 + g * 587 + b * 114) / 1000
+            return brightness < 128
+        except:
+            return True
     
     def run(self):
         """运行游戏"""

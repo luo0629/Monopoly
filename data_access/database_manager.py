@@ -222,6 +222,18 @@ class DatabaseManager:
             print(f"更新配置失败: {e}")
             return False
     
+    def delete_save(self, save_name: str) -> bool:
+        """删除存档"""
+        try:
+            self.execute_update(
+                'DELETE FROM game_saves WHERE save_name = ?',
+                (save_name,)
+            )
+            return True
+        except sqlite3.Error as e:
+            print(f"删除存档失败: {e}")
+            return False
+    
     def close(self):
         """关闭数据库连接"""
         if self.connection:

@@ -1,8 +1,8 @@
 {
   "map_info": {
-    "name": "经典大富翁地图",
+    "name": "青岛大富翁地图",
     "version": "1.0",
-    "description": "标准36格大富翁游戏地图，包含各种类型的格子",
+    "description": "以青岛著名景点为主题的36格大富翁游戏地图",
     "board_size": 36,
     "created_by": "系统",
     "created_date": "2024-01-01"
@@ -34,14 +34,14 @@
     },
     {
       "position": 3,
-      "name": "西门町",
+      "name": "台东路步行街",
       "type": "property",
       "price": 1000,
       "rent": 80,
       "upgrade_cost": 400,
       "level": "none",
       "owner_id": null,
-      "description": "台北著名商圈",
+      "description": "青岛著名商业街",
       "color_group": "brown"
     },
     {
@@ -58,26 +58,26 @@
     },
     {
       "position": 5,
-      "name": "桃园机场",
+      "name": "青岛流亭机场",
       "type": "airport",
       "price": 2000,
       "rent": 250,
       "upgrade_cost": 0,
       "level": "none",
       "owner_id": null,
-      "description": "国际机场，租金随拥有机场数量增加",
+      "description": "青岛国际机场，租金随拥有机场数量增加",
       "color_group": "airport"
     },
     {
       "position": 6,
-      "name": "淡水老街",
+      "name": "八大关风景区",
       "type": "property",
       "price": 1400,
       "rent": 120,
       "upgrade_cost": 600,
       "level": "none",
       "owner_id": null,
-      "description": "新北市著名景点",
+      "description": "青岛著名历史文化街区",
       "color_group": "light_blue"
     },
     {
@@ -94,26 +94,26 @@
     },
     {
       "position": 8,
-      "name": "九份老街",
+      "name": "第一海水浴场",
       "type": "property",
       "price": 1400,
       "rent": 120,
       "upgrade_cost": 600,
       "level": "none",
       "owner_id": null,
-      "description": "新北市山城景点",
+      "description": "青岛最著名的海滩",
       "color_group": "light_blue"
     },
     {
       "position": 9,
-      "name": "中正纪念堂",
+      "name": "栈桥",
       "type": "property",
       "price": 1800,
       "rent": 160,
       "upgrade_cost": 800,
       "level": "none",
       "owner_id": null,
-      "description": "台北市重要地标",
+      "description": "青岛标志性建筑",
       "color_group": "pink"
     },
     {
@@ -130,7 +130,7 @@
     },
     {
       "position": 11,
-      "name": "台电公司",
+      "name": "青岛供电公司",
       "type": "utility",
       "price": 1500,
       "rent": 0,
@@ -142,50 +142,50 @@
     },
     {
       "position": 12,
-      "name": "故宫博物院",
+      "name": "青岛啤酒博物馆",
       "type": "property",
       "price": 1800,
       "rent": 160,
       "upgrade_cost": 800,
       "level": "none",
       "owner_id": null,
-      "description": "世界著名博物馆",
+      "description": "世界著名啤酒文化博物馆",
       "color_group": "pink"
     },
     {
       "position": 13,
-      "name": "阳明山",
+      "name": "崂山风景区",
       "type": "property",
       "price": 2000,
       "rent": 180,
       "upgrade_cost": 900,
       "level": "none",
       "owner_id": null,
-      "description": "台北市后花园",
+      "description": "道教名山，海上第一名山",
       "color_group": "pink"
     },
     {
       "position": 14,
-      "name": "松山机场",
+      "name": "青岛北站",
       "type": "airport",
       "price": 2000,
       "rent": 250,
       "upgrade_cost": 0,
       "level": "none",
       "owner_id": null,
-      "description": "台北市区机场",
+      "description": "青岛高铁枢纽站",
       "color_group": "airport"
     },
     {
       "position": 15,
-      "name": "信义商圈",
+      "name": "万象城商圈",
       "type": "property",
       "price": 2200,
       "rent": 200,
       "upgrade_cost": 1000,
       "level": "none",
       "owner_id": null,
-      "description": "台北最繁华商圈",
+      "description": "青岛最繁华商圈",
       "color_group": "orange"
     },
     {
@@ -202,26 +202,26 @@
     },
     {
       "position": 17,
-      "name": "敦化南路",
+      "name": "香港中路",
       "type": "property",
       "price": 2200,
       "rent": 200,
       "upgrade_cost": 1000,
       "level": "none",
       "owner_id": null,
-      "description": "台北重要道路",
+      "description": "青岛重要商业大道",
       "color_group": "orange"
     },
     {
       "position": 18,
-      "name": "信义商圈",
+      "name": "五四广场",
       "type": "property",
       "price": 4000,
       "rent": 500,
       "upgrade_cost": 2000,
       "level": "none",
       "owner_id": null,
-      "description": "台北最繁华商圈",
+      "description": "青岛现代化地标广场",
       "color_group": "dark_blue"
     },
     {
@@ -238,14 +238,14 @@
     },
     {
       "position": 20,
-      "name": "日月潭",
+      "name": "小青岛公园",
       "type": "property",
       "price": 2600,
       "rent": 240,
       "upgrade_cost": 1200,
       "level": "none",
       "owner_id": null,
-      "description": "台湾最美湖泊",
+      "description": "青岛湾内的美丽小岛",
       "color_group": "red"
     },
     {
@@ -262,43 +262,43 @@
     },
     {
       "position": 22,
-      "name": "阿里山",
+      "name": "信号山公园",
       "type": "property",
       "price": 2600,
       "rent": 240,
       "upgrade_cost": 1200,
       "level": "none",
       "owner_id": null,
-      "description": "嘉义县著名景点",
+      "description": "青岛市区制高点",
       "color_group": "red"
     },
     {
       "position": 23,
-      "name": "高雄机场",
+      "name": "青岛港",
       "type": "airport",
       "price": 2000,
       "rent": 250,
       "upgrade_cost": 0,
       "level": "none",
       "owner_id": null,
-      "description": "南台湾重要机场",
+      "description": "世界重要港口",
       "color_group": "airport"
     },
     {
       "position": 24,
-      "name": "垦丁国家公园",
+      "name": "金沙滩",
       "type": "property",
       "price": 2800,
       "rent": 260,
       "upgrade_cost": 1300,
       "level": "none",
       "owner_id": null,
-      "description": "台湾最南端景点",
+      "description": "亚洲第一滩",
       "color_group": "red"
     },
     {
       "position": 25,
-      "name": "中华电信",
+      "name": "青岛联通",
       "type": "utility",
       "price": 1500,
       "rent": 0,
@@ -310,26 +310,26 @@
     },
     {
       "position": 26,
-      "name": "高美湿地",
+      "name": "奥帆中心",
       "type": "property",
       "price": 3000,
       "rent": 280,
       "upgrade_cost": 1400,
       "level": "none",
       "owner_id": null,
-      "description": "台中市生态景点",
+      "description": "2008奥运帆船比赛场地",
       "color_group": "yellow"
     },
     {
       "position": 27,
-      "name": "逢甲夜市",
+      "name": "台东夜市",
       "type": "property",
       "price": 3200,
       "rent": 300,
       "upgrade_cost": 1500,
       "level": "none",
       "owner_id": null,
-      "description": "台中著名夜市",
+      "description": "青岛著名夜市",
       "color_group": "yellow"
     },
     {
@@ -346,14 +346,14 @@
     },
     {
       "position": 29,
-      "name": "彩虹眷村",
+      "name": "海底世界",
       "type": "property",
       "price": 3200,
       "rent": 300,
       "upgrade_cost": 1500,
       "level": "none",
       "owner_id": null,
-      "description": "台中文创景点",
+      "description": "青岛海洋主题公园",
       "color_group": "yellow"
     },
     {
@@ -370,26 +370,26 @@
     },
     {
       "position": 31,
-      "name": "龙山寺",
+      "name": "天主教堂",
       "type": "property",
       "price": 3500,
       "rent": 350,
       "upgrade_cost": 1750,
       "level": "none",
       "owner_id": null,
-      "description": "台北古老庙宇",
+      "description": "青岛著名哥特式建筑",
       "color_group": "green"
     },
     {
       "position": 32,
-      "name": "台北车站",
+      "name": "青岛站",
       "type": "airport",
       "price": 2000,
       "rent": 250,
       "upgrade_cost": 0,
       "level": "none",
       "owner_id": null,
-      "description": "台北交通枢纽",
+      "description": "青岛火车站",
       "color_group": "airport"
     },
     {
@@ -406,14 +406,14 @@
     },
     {
       "position": 34,
-      "name": "西门町",
+      "name": "中山路商业街",
       "type": "property",
       "price": 4000,
       "rent": 500,
       "upgrade_cost": 2000,
       "level": "none",
       "owner_id": null,
-      "description": "台北最繁华地段",
+      "description": "青岛最繁华的百年商业街",
       "color_group": "dark_blue"
     },
     {
@@ -429,35 +429,35 @@
       "color_group": "special"
     },
     {
-      "position": 39,
-      "name": "总统府",
+      "position": 36,
+      "name": "青岛市政府",
       "type": "landmark",
       "price": 5000,
       "rent": 1000,
       "upgrade_cost": 0,
       "level": "none",
       "owner_id": null,
-      "description": "台湾政治中心，最昂贵的地标",
+      "description": "青岛政治中心，最昂贵的地标",
       "color_group": "dark_blue"
     }
   ],
   "color_groups": {
-    "brown": [2, 4],
+    "brown": [3],
     "light_blue": [6, 8],
-    "pink": [10, 12, 13],
-    "orange": [15, 17, 19],
-    "red": [21, 22, 24],
-    "yellow": [26, 28, 29],
+    "pink": [9, 12, 13],
+    "orange": [15, 17],
+    "red": [20, 22, 24],
+    "yellow": [26, 27, 29],
     "green": [31],
-    "dark_blue": [34],
+    "dark_blue": [18, 34, 36],
     "airport": [5, 14, 23, 32],
     "utility": [11, 25]
   },
   "special_positions": {
     "start": 1,
-    "jail": 9,
-    "free_parking": 18,
-    "go_to_jail": 27
+    "jail": 10,
+    "free_parking": 19,
+    "go_to_jail": 28
   },
   "rent_levels": {
     "property": {

@@ -55,7 +55,7 @@ class Player:
     properties: List[int] = field(default_factory=list)
     items: List[str] = field(default_factory=list)
     
-    def move(self, steps: int, board_size: int = 37):
+    def move(self, steps: int, board_size: int = 36):
         """移动玩家"""
         old_position = self.position
         self.position = (self.position + steps) % board_size
@@ -90,7 +90,7 @@ class Player:
         """进监狱"""
         self.is_in_jail = True
         self.jail_turns = 3
-        self.position = 10  # 监狱位置
+        self.position = 9  # 监狱位置（玩家位置从0开始，监狱是地图位置10，对应玩家位置9）
     
     def try_leave_jail(self, pay_fine: bool = False) -> bool:
         """尝试出狱"""
