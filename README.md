@@ -23,6 +23,7 @@
 ## 设计模式
 
 - 单例模式 (Singleton): 游戏管理器
+- 抽象工厂模式 (Abstract Factory): AI策略和事件系统的产品族创建
 - 工厂模式 (Factory): 玩家和事件创建
 - 观察者模式 (Observer): 游戏状态通知
 - 策略模式 (Strategy): AI决策算法
@@ -170,10 +171,11 @@ saves/                     # 游戏存档目录
 ### 设计模式应用
 
 1. **单例模式**: GameManager、DatabaseManager确保全局唯一实例
-2. **观察者模式**: 游戏状态变化通知界面更新
-3. **工厂模式**: AI策略创建
-4. **命令模式**: 游戏操作封装，支持撤销/重做
-5. **策略模式**: AI决策算法可插拔
+2. **抽象工厂模式**: AI策略和事件系统的产品族创建
+3. **观察者模式**: 游戏状态变化通知界面更新
+4. **工厂模式**: AI策略创建
+5. **命令模式**: 游戏操作封装，支持撤销/重做
+6. **策略模式**: AI决策算法可插拔
 
 #### 单例模式详细实现
 
@@ -301,6 +303,99 @@ class ConfigManager:
 - **可维护性**: 每种策略独立实现，互不影响
 - **灵活性**: 运行时可以动态切换AI策略
 - **代码复用**: 统一的策略接口，便于管理和调用
+
+#### 抽象工厂模式详细实现
+
+**抽象工厂模式角色分析**:
+
+**抽象工厂 (AbstractFactory)**: `AbstractGameFactory`抽象类
+
+- 定义创建产品族的抽象接口
+- 位置: `business/abstract_factory.py` 第6行
+- 核心方法:
+  - `create_ai_strategy(difficulty)`: 创建AI策略
+  - `create_chance_events()`: 创建幸运事件列表
+  - `create_misfortune_events()`: 创建不幸事件列表
+
+**具体工厂 (ConcreteFactory)**:
+
+- `StandardGameFactory` (第6行): 标准游戏工厂
+  - 创建标准难度的AI策略
+  - 生成标准的幸运/不幸事件
+  - 适用于普通游戏模式
+- `HardModeGameFactory` (第35行): 困难模式工厂
+  - 创建更具挑战性的AI策略
+  - 生成更严苛的事件组合
+  - 适用于高难度游戏
+- `EasyModeGameFactory` (第64行): 简单模式工厂
+  - 创建较为温和的AI策略
+  - 生成更友好的事件组合
+  - 适用于新手玩家
+
+**抽象产品 (AbstractProduct)**:
+
+- `AIStrategy`: AI策略抽象基类
+- `ChanceEvent`: 幸运事件基类
+- `MisfortuneEvent`: 不幸事件基类
+
+**具体产品 (ConcreteProduct)**:
+
+- AI策略产品族:
+  - `EasyAIStrategy`: 简单AI策略
+  - `MediumAIStrategy`: 中等AI策略
+  - `HardAIStrategy`: 困难AI策略
+- 事件产品族:
+  - 各种具体的幸运事件实现
+  - 各种具体的不幸事件实现
+
+**工厂管理器 (Factory Manager)**: `GameFactoryManager`类
+
+- 根据游戏模式选择合适的具体工厂
+- 位置: `business/abstract_factory.py` 第93行
+- 核心方法: `get_factory(game_mode)` - 返回对应的工厂实例
+- 支持的游戏模式:
+  - `"standard"`: 返回 `StandardGameFactory`
+  - `"hard"`: 返回 `HardModeGameFactory`
+  - `"easy"`: 返回 `EasyModeGameFactory`
+
+**抽象工厂模式的使用场景**:
+
+**AI策略系统**:
+- 位置: `business/ai_strategy.py` 第12-15行
+- 使用方式:
+  ```python
+  factory = GameFactoryManager.get_factory(game_mode)
+  ai_strategy = factory.create_ai_strategy(difficulty)
+  ```
+
+**事件系统**:
+- 位置: `business/events.py` 第15-25行
+- 使用方式:
+  ```python
+  factory = GameFactoryManager.get_factory(game_mode)
+  chance_events = factory.create_chance_events()
+  misfortune_events = factory.create_misfortune_events()
+  ```
+
+**抽象工厂模式的优势**:
+
+- **产品族一致性**: 确保同一游戏模式下的AI策略和事件风格一致
+- **易于切换产品族**: 通过改变工厂类型，轻松切换整个产品族
+- **符合开闭原则**: 添加新的游戏模式只需新增具体工厂，无需修改现有代码
+- **分离接口与实现**: 客户端只依赖抽象工厂接口，不依赖具体实现
+- **便于测试**: 可以轻松创建测试用的工厂和产品
+- **扩展性强**: 支持添加新的产品类型和新的游戏模式
+
+**扩展示例**:
+
+要添加新的游戏模式（如"nightmare"超级困难模式），只需：
+
+1. 创建 `NightmareGameFactory` 继承 `AbstractGameFactory`
+2. 实现对应的产品创建方法
+3. 在 `GameFactoryManager` 中注册新工厂
+4. 无需修改任何现有代码
+
+这种设计使得游戏的难度系统具有极高的可扩展性和可维护性。
 
 #### 观察者模式详细实现
 
