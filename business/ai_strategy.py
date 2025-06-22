@@ -287,19 +287,16 @@ class HardAIStrategy(AIStrategy):
         return None
 
 class AIStrategyFactory:
-    """AI策略工厂 - 工厂模式"""
+    """AI策略工厂 - 简单工厂模式（保留向后兼容）"""
     
     @staticmethod
-    def create_strategy(difficulty: str) -> AIStrategy:
-        """根据难度创建AI策略"""
-        strategies = {
-            "easy": EasyAIStrategy,
-            "medium": MediumAIStrategy,
-            "hard": HardAIStrategy
-        }
+    def create_strategy(difficulty: str, game_mode: str = "standard") -> AIStrategy:
+        """根据难度和游戏模式创建AI策略"""
+        from .abstract_factory import GameFactoryManager
         
-        strategy_class = strategies.get(difficulty.lower(), MediumAIStrategy)
-        return strategy_class()
+        # 使用抽象工厂模式
+        factory = GameFactoryManager.get_factory(game_mode)
+        return factory.create_ai_strategy(difficulty)
 
 class AIPlayer:
     """AI玩家控制器"""
