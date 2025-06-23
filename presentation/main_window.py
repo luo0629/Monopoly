@@ -896,8 +896,11 @@ class GameGUI(EventObserver):
         
         # 切换到下一个玩家
         if self.game_manager.next_turn():
-            self._update_ui_state()
+            # 立即更新UI显示新的当前玩家
             self._update_game_info()
+            self._update_player_list()
+            self._draw_board()  # 重绘棋盘以突出显示新的当前玩家
+            self._update_ui_state()
         else:
             # 游戏结束
             self._game_over()

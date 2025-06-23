@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-大富翁游戏主程序
-作者: AI Assistant
-版本: 1.0.0
-描述: 基于三层架构和设计模式的大富翁游戏
-"""
 
 import sys
 import os
