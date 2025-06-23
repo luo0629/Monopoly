@@ -1338,9 +1338,8 @@ class GameGUI(EventObserver):
     
     def _on_closing(self):
         """关闭程序"""
-        if messagebox.askokcancel("退出", "确定要退出游戏吗？"):
-            self.game_manager.db_manager.close()
-            self.root.destroy()
+        self.game_manager.db_manager.close()
+        self.root.destroy()
     
     def restore_from_loaded_game(self):
         """从加载的游戏中恢复界面状态"""

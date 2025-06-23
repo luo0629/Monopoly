@@ -232,27 +232,6 @@ class MonopolyGameApp:
     def on_closing(self):
         """处理窗口关闭事件"""
         try:
-            # 检查是否有未保存的游戏
-            if (self.game_manager and 
-                self.game_manager.game_state.value in ["playing", "paused"]):
-                
-                result = messagebox.askyesnocancel(
-                    "退出游戏",
-                    "当前游戏尚未保存，是否保存后退出？\n\n"
-                    "是 - 保存并退出\n"
-                    "否 - 不保存直接退出\n"
-                    "取消 - 返回游戏"
-                )
-                
-                if result is None:  # 取消
-                    return
-                elif result:  # 是，保存
-                    if self.state_manager:
-                        save_name = f"exit_save_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-                        if not self.state_manager.save_game_state(save_name):
-                            if not messagebox.askyesno("保存失败", "保存失败，是否仍要退出？"):
-                                return
-            
             # 保存配置和统计数据
             if self.config_manager:
                 self.config_manager.save_config(self.game_manager.config)
@@ -260,7 +239,7 @@ class MonopolyGameApp:
             if self.statistics_manager:
                 self.statistics_manager.save_statistics()
             
-            # 关闭应用程序
+            # 直接关闭应用程序，不询问是否保存
             self.running = False
             if self.root:
                 self.root.quit()
