@@ -10,6 +10,7 @@ from .models import (
 )
 from .events import EventProcessor, EventSubject
 from .ai_strategy import AIPlayer, AIStrategyFactory
+from .commands import CommandInvoker, PurchasePropertyCommand, UpgradePropertyCommand, PayTaxCommand, MovePlayerCommand
 from data_access.database_manager import DatabaseManager
 
 class GameManager(EventSubject):
@@ -39,6 +40,7 @@ class GameManager(EventSubject):
             self.game_log: List[str] = []
             self.special_effects: Dict[int, Dict[str, Any]] = {}  # 玩家特殊效果
             self.last_dice_result: Optional[Tuple[int, int, int]] = None  # 最后一次骰子结果
+            self.command_invoker = CommandInvoker()  # 命令调用器
             self.initialized = True
             self._load_map_data()
     
@@ -149,24 +151,9 @@ class GameManager(EventSubject):
         return dice1, dice2, total
     
     def move_player(self, player: Player, steps: int) -> Dict[str, Any]:
-        """移动玩家"""
-        old_position = player.position
-        passed_start = player.move(steps, len(self.map_cells))
-        
-        result = {
-            "player": player,
-            "old_position": old_position,
-            "new_position": player.position,
-            "passed_start": passed_start,
-            "start_bonus": 0
-        }
-        
-        # 经过起点获得奖励
-        if passed_start:
-            player.add_money(self.config.start_bonus)
-            result["start_bonus"] = self.config.start_bonus
-            self._log(f"{player.name} 经过起点，获得 {self.config.start_bonus} 金币")
-        
+        """移动玩家 - 使用命令模式"""
+        command = MovePlayerCommand(self, player, steps)
+        result = self.command_invoker.execute_command(command)
         return result
     
     def get_cell_at_position(self, position: int) -> Optional[MapCell]:
@@ -304,21 +291,21 @@ class GameManager(EventSubject):
         }
     
     def _handle_tax_landing(self, player: Player, cell: MapCell) -> Dict[str, Any]:
-        """处理税务格子"""
-        if "所得税" in cell.name:
-            tax_amount = 200
-        elif "奢侈税" in cell.name:
-            tax_amount = 100
+        """处理税务格子 - 使用命令模式"""
+        command = PayTaxCommand(self, player, cell)
+        result = self.command_invoker.execute_command(command)
+        
+        if result.get("success", False):
+            return {
+                "type": "tax_paid",
+                "tax_amount": result.get("tax_amount", 0),
+                "tax_type": result.get("tax_type", cell.name)
+            }
         else:
-            tax_amount = int(player.money * self.config.tax_rate)
-        
-        player.spend_money(tax_amount)
-        
-        return {
-            "type": "tax_paid",
-            "tax_amount": tax_amount,
-            "tax_type": cell.name
-        }
+            return {
+                "type": "tax_failed",
+                "message": result.get("message", "交税失败")
+            }
     
     def _handle_go_to_jail(self, player: Player) -> Dict[str, Any]:
         """处理进监狱"""
@@ -333,44 +320,16 @@ class GameManager(EventSubject):
         }
     
     def purchase_property(self, player: Player, cell: MapCell) -> bool:
-        """购买房产"""
-        if cell.owner_id is not None:
-            return False
-        
-        # 检查是否有折扣效果
-        discount = 1.0
-        if player.id in self.special_effects:
-            effects = self.special_effects[player.id]
-            if "property_discount" in effects:
-                discount = effects["property_discount"]
-                del self.special_effects[player.id]["property_discount"]
-        
-        final_price = int(cell.price * discount)
-        
-        if player.buy_property(cell.position, final_price):
-            cell.owner_id = player.id
-            message = f"{player.name} 购买了 {cell.name}，花费 {final_price} 金币"
-            self._log(message)
-            # 通知界面更新日志
-            self.notify({"message": message, "type": "purchase"})
-            return True
-        
-        return False
+        """购买房产 - 使用命令模式"""
+        command = PurchasePropertyCommand(self, player, cell)
+        result = self.command_invoker.execute_command(command)
+        return result.get("success", False)
     
     def upgrade_property(self, player: Player, cell: MapCell) -> bool:
-        """升级房产"""
-        if cell.owner_id != player.id or not cell.can_upgrade():
-            return False
-        
-        upgrade_cost = cell.upgrade()
-        if upgrade_cost > 0 and player.spend_money(upgrade_cost):
-            message = f"{player.name} 升级了 {cell.name}，花费 {upgrade_cost} 金币"
-            self._log(message)
-            # 通知界面更新日志
-            self.notify({"message": message, "type": "upgrade"})
-            return True
-        
-        return False
+        """升级房产 - 使用命令模式"""
+        command = UpgradePropertyCommand(self, player, cell)
+        result = self.command_invoker.execute_command(command)
+        return result.get("success", False)
     
     def get_player_by_id(self, player_id: int) -> Optional[Player]:
         """根据ID获取玩家"""
@@ -378,6 +337,30 @@ class GameManager(EventSubject):
             if player.id == player_id:
                 return player
         return None
+    
+    def undo_last_action(self) -> Dict[str, Any]:
+        """撤销上一个操作"""
+        return self.command_invoker.undo()
+    
+    def redo_last_action(self) -> Dict[str, Any]:
+        """重做上一个操作"""
+        return self.command_invoker.redo()
+    
+    def get_command_history(self) -> List[str]:
+        """获取命令历史"""
+        return self.command_invoker.get_command_history()
+    
+    def can_undo(self) -> bool:
+        """是否可以撤销"""
+        return self.command_invoker.can_undo()
+    
+    def can_redo(self) -> bool:
+        """是否可以重做"""
+        return self.command_invoker.can_redo()
+    
+    def clear_command_history(self):
+        """清空命令历史"""
+        self.command_invoker.clear_history()
     
     def next_turn(self) -> bool:
         """切换到下一个玩家"""

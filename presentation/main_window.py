@@ -130,6 +130,20 @@ class GameGUI(EventObserver):
         self.end_turn_button = ttk.Button(button_frame, text="✅ 结束回合", 
                                          command=self._end_turn, state=tk.DISABLED)
         self.end_turn_button.pack(fill=tk.X, pady=2)
+        
+        # 撤销/重做按钮框架
+        undo_redo_frame = ttk.Frame(button_frame)
+        undo_redo_frame.pack(fill=tk.X, pady=2)
+        
+        # 撤销按钮
+        self.undo_button = ttk.Button(undo_redo_frame, text="↶ 撤销", 
+                                     command=self._undo_action, state=tk.DISABLED)
+        self.undo_button.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 1))
+        
+        # 重做按钮
+        self.redo_button = ttk.Button(undo_redo_frame, text="↷ 重做", 
+                                     command=self._redo_action, state=tk.DISABLED)
+        self.redo_button.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(1, 0))
     
     def _create_player_info_panel(self, parent):
         """创建玩家信息面板"""
@@ -899,10 +913,51 @@ class GameGUI(EventObserver):
         
         self._update_ui_state()
     
+    def _undo_action(self):
+        """撤销操作"""
+        result = self.game_manager.undo_last_action()
+        if result.get("success", False):
+            self._log(f"撤销操作: {result.get('message', '操作已撤销')}", 'info')
+            self._update_player_list()
+            self._draw_board()
+            self._update_game_info()
+        else:
+            self._log(f"撤销失败: {result.get('message', '没有可撤销的操作')}", 'warning')
+        
+        self._update_undo_redo_buttons()
+    
+    def _redo_action(self):
+        """重做操作"""
+        result = self.game_manager.redo_last_action()
+        if result.get("success", False):
+            self._log(f"重做操作: {result.get('message', '操作已重做')}", 'info')
+            self._update_player_list()
+            self._draw_board()
+            self._update_game_info()
+        else:
+            self._log(f"重做失败: {result.get('message', '没有可重做的操作')}", 'warning')
+        
+        self._update_undo_redo_buttons()
+    
+    def _update_undo_redo_buttons(self):
+        """更新撤销/重做按钮状态"""
+        if self.game_manager.can_undo():
+            self.undo_button.config(state=tk.NORMAL)
+        else:
+            self.undo_button.config(state=tk.DISABLED)
+        
+        if self.game_manager.can_redo():
+            self.redo_button.config(state=tk.NORMAL)
+        else:
+            self.redo_button.config(state=tk.DISABLED)
+    
     def _update_ui_state(self):
         """更新UI状态"""
         game_state = self.game_manager.game_state
         current_player = self.game_manager.get_current_player()
+        
+        # 更新撤销/重做按钮状态
+        self._update_undo_redo_buttons()
         
         if game_state == GameState.PLAYING and current_player:
             # 游戏进行中

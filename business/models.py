@@ -187,6 +187,10 @@ class MapCell:
                 self.owner_id is not None and 
                 self.level.value < PropertyLevel.HOTEL.value)
     
+    def get_upgrade_cost(self) -> int:
+        """获取升级费用"""
+        return self.upgrade_cost
+    
     def upgrade(self) -> int:
         """升级房产，返回升级费用"""
         if self.can_upgrade():
