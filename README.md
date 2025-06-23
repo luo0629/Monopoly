@@ -20,6 +20,133 @@
 - **业务逻辑层 (Business Logic Layer)**: 游戏规则和逻辑处理
 - **数据访问层 (Data Access Layer)**: 数据库操作和文件管理
 
+## 面向对象设计原则
+
+本项目严格遵循面向对象设计的SOLID原则，确保代码的可维护性、可扩展性和可重用性：
+
+### 1. 单一职责原则 (Single Responsibility Principle)
+
+每个类都有明确且单一的职责：
+
+- **Player类** (`business/models.py`): 专门负责玩家数据和行为管理
+
+  - 管理玩家属性（金钱、位置、房产等）
+  - 处理玩家行为（移动、购买、升级等）
+  - 不涉及界面显示或数据库操作
+- **MapCell类** (`business/models.py`): 专门负责地图格子的属性和行为
+
+  - 管理格子属性（价格、租金、等级等）
+  - 处理房产相关操作（升级、租金计算等）
+  - 不处理玩家逻辑或界面更新
+- **DatabaseManager类** (`data_access/database_manager.py`): 专门负责数据库操作
+
+  - 管理数据库连接和事务
+  - 提供数据的增删改查接口
+  - 不涉及业务逻辑处理
+- **GameManager类** (`business/game_manager.py`): 专门负责游戏流程控制
+
+  - 管理游戏状态和回合流转
+  - 协调各个组件的交互
+  - 不直接处理界面显示或数据存储
+
+### 2. 开闭原则 (Open-Closed Principle)
+
+系统对扩展开放，对修改封闭：
+
+- **AI策略扩展**: 通过继承 `AIStrategy`抽象基类，可以轻松添加新的AI策略，无需修改现有代码
+
+  ```python
+  class NewAIStrategy(AIStrategy):
+      def decide_purchase(self, player, cell):
+          # 新的决策逻辑
+          pass
+  ```
+- **事件系统扩展**: 通过抽象工厂模式，可以添加新的游戏模式和事件类型
+
+  ```python
+  class CustomGameFactory(AbstractGameFactory):
+      def create_chance_events(self):
+          # 创建自定义幸运事件
+          pass
+  ```
+- **观察者模式**: 可以添加新的观察者（如日志记录器、统计模块）而不修改主题类
+
+### 3. 里氏替换原则 (Liskov Substitution Principle)
+
+子类可以完全替换父类使用：
+
+- **AI策略替换**: 所有AI策略类都可以互相替换使用
+
+  ```python
+  # 任何AI策略都可以替换使用
+  ai_strategy: AIStrategy = EasyAIStrategy()  # 或 MediumAIStrategy() 或 HardAIStrategy()
+  decision = ai_strategy.decide_purchase(player, cell)
+  ```
+- **工厂类替换**: 不同的游戏工厂可以互相替换
+
+  ```python
+  # 任何工厂都可以替换使用
+  factory: AbstractGameFactory = StandardGameFactory()  # 或其他工厂
+  ai_strategy = factory.create_ai_strategy("medium")
+  ```
+
+### 4. 接口隔离原则 (Interface Segregation Principle)
+
+接口设计精简，避免强迫类实现不需要的方法：
+
+- **EventObserver接口**: 只定义必要的事件回调方法
+
+  ```python
+  class EventObserver(ABC):
+      @abstractmethod
+      def on_event_triggered(self, event_result: dict):
+          pass
+  ```
+- **AIStrategy接口**: 分离不同类型的决策方法，每个方法职责明确
+
+  ```python
+  class AIStrategy(ABC):
+      @abstractmethod
+      def decide_purchase(self, player, cell): pass
+
+      @abstractmethod
+      def decide_upgrade(self, player, cell): pass
+
+      @abstractmethod
+      def decide_jail_action(self, player): pass
+  ```
+
+### 5. 依赖倒置原则 (Dependency Inversion Principle)
+
+高层模块不依赖低层模块，都依赖抽象：
+
+- **GameManager依赖抽象**: 依赖 `AIStrategy`抽象而不是具体实现
+
+  ```python
+  class GameManager:
+      def __init__(self):
+          self.ai_strategy: AIStrategy = None  # 依赖抽象
+  ```
+- **工厂模式应用**: 通过抽象工厂创建对象，避免直接依赖具体类
+
+  ```python
+  # 依赖抽象工厂而不是具体工厂
+  factory = GameFactoryManager.get_factory(game_mode)
+  ai_strategy = factory.create_ai_strategy(difficulty)
+  ```
+
+### 封装性体现
+
+- **数据封装**: 使用 `@dataclass`和私有属性保护数据
+- **方法封装**: 将复杂逻辑封装在私有方法中
+- **模块封装**: 通过包结构实现功能模块的封装
+
+### 多态性体现
+
+- **AI策略多态**: 不同AI策略类实现相同接口，表现出不同行为
+- **工厂类多态**: 不同工厂类创建不同的产品族
+- **事件观察者多态**: 不同观察者对同一事件有不同响应
+
 ## 设计模式
 
 - 单例模式 (Singleton): 游戏管理器
@@ -82,18 +209,15 @@ presentation/
 
 包含游戏核心逻辑和规则
 
-```
 business/
 ├── __init__.py            # 包初始化文件
 ├── game_manager.py        # 游戏管理器（单例模式），核心游戏逻辑控制
 ├── models.py              # 数据模型定义（玩家、地图格子、游戏状态等）
 ├── ai_strategy.py         # AI玩家策略算法实现
 ├── events.py              # 事件系统（观察者模式）
-├── commands.py            # 游戏命令封装（命令模式）
 ├── config_manager.py      # 配置管理器
 ├── game_state_manager.py  # 游戏状态管理器
 └── game_statistics.py     # 游戏统计数据管理
-```
 
 ### 数据访问层 (data_access/)
 
@@ -361,6 +485,7 @@ class ConfigManager:
 **抽象工厂模式的使用场景**:
 
 **AI策略系统**:
+
 - 位置: `business/ai_strategy.py` 第12-15行
 - 使用方式:
   ```python
@@ -369,6 +494,7 @@ class ConfigManager:
   ```
 
 **事件系统**:
+
 - 位置: `business/events.py` 第15-25行
 - 使用方式:
   ```python
