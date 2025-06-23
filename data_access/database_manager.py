@@ -179,12 +179,26 @@ class DatabaseManager:
         return [dict(row) for row in rows]
     
     def save_game(self, save_name: str, game_data: str) -> bool:
-        """保存游戏"""
+        """保存游戏 - 如果存档已存在则覆盖"""
         try:
-            self.execute_update(
-                'INSERT INTO game_saves (save_name, game_data) VALUES (?, ?)',
-                (save_name, game_data)
+            # 检查是否已存在同名存档
+            existing = self.execute_query(
+                'SELECT id FROM game_saves WHERE save_name = ?',
+                (save_name,)
             )
+            
+            if existing:
+                # 存档已存在，更新现有记录
+                self.execute_update(
+                    'UPDATE game_saves SET game_data = ?, save_date = CURRENT_TIMESTAMP WHERE save_name = ?',
+                    (game_data, save_name)
+                )
+            else:
+                # 存档不存在，插入新记录
+                self.execute_update(
+                    'INSERT INTO game_saves (save_name, game_data) VALUES (?, ?)',
+                    (save_name, game_data)
+                )
             return True
         except sqlite3.Error as e:
             print(f"保存游戏失败: {e}")

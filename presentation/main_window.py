@@ -1207,6 +1207,25 @@ class GameGUI(EventObserver):
             messagebox.showwarning("警告", "游戏尚未开始，无法保存")
             return
         
+        # 如果有上次保存的名称，询问是否快速保存
+        if self.game_manager.last_save_name:
+            result = messagebox.askyesnocancel(
+                "保存游戏", 
+                f"是否覆盖保存到 '{self.game_manager.last_save_name}'？\n\n是：覆盖保存\n否：另存为新存档\n取消：不保存"
+            )
+            
+            if result is True:  # 用户选择"是" - 快速保存
+                if self.game_manager.quick_save():
+                    messagebox.showinfo("成功", f"游戏已保存到 '{self.game_manager.last_save_name}'")
+                else:
+                    messagebox.showerror("错误", "快速保存失败")
+                return
+            elif result is False:  # 用户选择"否" - 另存为
+                pass  # 继续执行下面的输入存档名称逻辑
+            else:  # 用户选择"取消"
+                return
+        
+        # 询问存档名称（首次保存或用户选择另存为）
         save_name = simpledialog.askstring("保存游戏", "请输入存档名称:")
         if save_name:
             if self.game_manager.save_game(save_name):

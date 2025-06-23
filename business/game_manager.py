@@ -40,6 +40,7 @@ class GameManager(EventSubject):
             self.game_log: List[str] = []
             self.special_effects: Dict[int, Dict[str, Any]] = {}  # 玩家特殊效果
             self.last_dice_result: Optional[Tuple[int, int, int]] = None  # 最后一次骰子结果
+            self.last_save_name = None  # 记录上次保存的存档名称
             self.command_invoker = CommandInvoker()  # 命令调用器
             self.initialized = True
             self._load_map_data()
@@ -447,7 +448,16 @@ class GameManager(EventSubject):
             "save_timestamp": datetime.now().isoformat()
         }
         
-        return self.db_manager.save_game(save_name, json.dumps(game_data))
+        result = self.db_manager.save_game(save_name, json.dumps(game_data))
+        if result:
+            self.last_save_name = save_name  # 记录成功保存的存档名称
+        return result
+    
+    def quick_save(self) -> bool:
+        """快速保存游戏 - 使用上次的存档名称"""
+        if not self.last_save_name:
+            return False  # 没有上次保存的名称，无法快速保存
+        return self.save_game(self.last_save_name)
     
     def load_game(self, save_name: str) -> bool:
         """加载游戏"""
@@ -482,6 +492,7 @@ class GameManager(EventSubject):
                     self.ai_players[player.id] = AIPlayer(player, difficulty)
             
             self._log(f"游戏 '{save_name}' 加载成功")
+            self.last_save_name = save_name  # 记录加载的存档名称，支持后续快速保存
             return True
             
         except (json.JSONDecodeError, KeyError) as e:
@@ -518,5 +529,6 @@ class GameManager(EventSubject):
         self.turn_count = 0
         self.game_log.clear()
         self.special_effects.clear()
+        self.last_save_name = None  # 清除上次保存的存档名称
         self._load_map_data()  # 重新加载地图数据
         self._log("游戏已重置")
