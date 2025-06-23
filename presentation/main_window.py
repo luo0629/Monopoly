@@ -921,6 +921,11 @@ class GameGUI(EventObserver):
             self._update_player_list()
             self._draw_board()
             self._update_game_info()
+            
+            # 只有撤销移动命令（掷骰子）时才重新启用掷骰子按钮
+            command_type = result.get("command_type")
+            if command_type == "MovePlayerCommand":
+                self._update_ui_state()
         else:
             self._log(f"撤销失败: {result.get('message', '没有可撤销的操作')}", 'warning')
         
@@ -934,6 +939,11 @@ class GameGUI(EventObserver):
             self._update_player_list()
             self._draw_board()
             self._update_game_info()
+            
+            # 只有重做移动命令（掷骰子）时才重新启用掷骰子按钮
+            command_type = result.get("command_type")
+            if command_type == "MovePlayerCommand":
+                self._update_ui_state()
         else:
             self._log(f"重做失败: {result.get('message', '没有可重做的操作')}", 'warning')
         

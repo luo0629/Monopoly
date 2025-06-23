@@ -351,6 +351,8 @@ class CommandInvoker:
         result = command.undo()
         
         if result.get("success", False):
+            # 添加被撤销的命令类型信息
+            result["command_type"] = type(command).__name__
             self.current_index -= 1
         
         return result
@@ -366,6 +368,9 @@ class CommandInvoker:
         
         if not result.get("success", False):
             self.current_index -= 1
+        else:
+            # 添加重做的命令类型信息
+            result["command_type"] = type(command).__name__
         
         return result
     
