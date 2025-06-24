@@ -2,15 +2,13 @@ import random
 from typing import List, Dict, Any, Optional
 from abc import ABC, abstractmethod
 from Model.models import GameEvent, Player
-
+from .abstract_factory import GameFactoryManager
 class EventFactory:
     """事件工厂类"""
     
     @staticmethod
     def create_chance_events(game_mode: str = "standard") -> List[GameEvent]:
-        """创建幸运事件列表"""
-        from .abstract_factory import GameFactoryManager
-        
+        """创建幸运事件列表"""       
         # 使用抽象工厂模式
         factory = GameFactoryManager.get_factory(game_mode)
         return factory.create_chance_events()
@@ -19,9 +17,7 @@ class EventFactory:
     
     @staticmethod
     def create_misfortune_events(game_mode: str = "standard") -> List[GameEvent]:
-        """创建不幸事件列表"""
-        from .abstract_factory import GameFactoryManager
-        
+        """创建不幸事件列表"""       
         # 使用抽象工厂模式
         factory = GameFactoryManager.get_factory(game_mode)
         return factory.create_misfortune_events()

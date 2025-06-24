@@ -10,7 +10,8 @@ from Model.models import (
 )
 from .events import EventProcessor, EventSubject
 from .ai_strategy_base import AIPlayer, AIStrategyFactory
-from .commands import CommandInvoker, PurchasePropertyCommand, UpgradePropertyCommand, PayTaxCommand, MovePlayerCommand
+from .commands import CommandInvoker
+from .command_implementations import PurchasePropertyCommand, UpgradePropertyCommand, PayTaxCommand, MovePlayerCommand
 from DAL.database_manager import DatabaseManager
 
 class GameManager(EventSubject):
