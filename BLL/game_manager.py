@@ -4,14 +4,14 @@ from typing import List, Dict, Any, Optional, Tuple
 from datetime import datetime
 import threading
 
-from .models import (
+from Model.models import (
     Player, MapCell, GameState, GameConfig, PlayerType, 
     CellType, PropertyLevel
 )
 from .events import EventProcessor, EventSubject
-from .ai_strategy import AIPlayer, AIStrategyFactory
+from .ai_strategy_base import AIPlayer, AIStrategyFactory
 from .commands import CommandInvoker, PurchasePropertyCommand, UpgradePropertyCommand, PayTaxCommand, MovePlayerCommand
-from data_access.database_manager import DatabaseManager
+from DAL.database_manager import DatabaseManager
 
 class GameManager(EventSubject):
     """游戏管理器 - 单例模式"""

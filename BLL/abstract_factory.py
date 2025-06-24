@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any
-from .models import GameEvent
-from .ai_strategy import AIStrategy
+from Model.models import GameEvent
+from .ai_strategy_base import AIStrategy
 
 # 抽象工厂接口
 class AbstractGameFactory(ABC):

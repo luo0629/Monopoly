@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any, Optional
 import random
-from .models import Player, MapCell, PropertyLevel
+from Model.models import Player, MapCell, PropertyLevel
 
 
 class Command(ABC):

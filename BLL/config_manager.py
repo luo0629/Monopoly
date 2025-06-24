@@ -2,8 +2,8 @@ from typing import Dict, Any, Optional
 import json
 import os
 from dataclasses import asdict
-from .models import GameConfig
-from data_access.database_manager import DatabaseManager
+from Model.models import GameConfig
+from DAL.database_manager import DatabaseManager
 
 class ConfigManager:
     """配置管理器 - 单例模式"""

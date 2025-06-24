@@ -1,7 +1,7 @@
 import random
 from typing import List, Dict, Any, Optional
 from abc import ABC, abstractmethod
-from .models import GameEvent, Player
+from Model.models import GameEvent, Player
 
 class EventFactory:
     """事件工厂类"""

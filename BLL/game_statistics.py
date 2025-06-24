@@ -4,8 +4,8 @@ from dataclasses import dataclass, asdict
 from collections import defaultdict
 import json
 import os
-from .models import Player, GameState
-from data_access.database_manager import DatabaseManager
+from Model.models import Player, GameState
+from DAL.database_manager import DatabaseManager
 
 @dataclass
 class PlayerStatistics:

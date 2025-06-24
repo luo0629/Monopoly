@@ -1,9 +1,9 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 from typing import List, Dict
-from business.models import PlayerType
-from business.game_state_manager import GameStateManager
-from business.game_manager import GameManager
+from Model.models import PlayerType
+from BLL.game_state_manager import GameStateManager
+from BLL.game_manager import GameManager
 
 class StartPage:
     """游戏开始页面 - 简化版本"""
@@ -19,7 +19,7 @@ class StartPage:
         self.on_load_game = on_load_game_callback
         
         # 存档管理器
-        from business.game_manager import GameManager
+        from BLL.game_manager import GameManager
         temp_game_manager = GameManager()
         self.state_manager = GameStateManager(temp_game_manager)
         
@@ -349,8 +349,8 @@ class LoadGameWindow:
         self.on_load = on_load_callback
         
         # 获取状态管理器用于删除存档
-        from business.game_manager import GameManager
-        from business.game_state_manager import GameStateManager
+        from BLL.game_manager import GameManager
+        from BLL.game_state_manager import GameStateManager
         temp_game_manager = GameManager()
         self.state_manager = GameStateManager(temp_game_manager)
         
@@ -614,8 +614,8 @@ class LoadGameWindow:
         """刷新存档列表"""
         try:
             # 重新获取存档列表
-            from business.game_state_manager import GameStateManager
-            from business.game_manager import GameManager
+            from BLL.game_state_manager import GameStateManager
+            from BLL.game_manager import GameManager
             temp_game_manager = GameManager()
             temp_state_manager = GameStateManager(temp_game_manager)
             self.saves = temp_state_manager.get_save_list()

@@ -4,9 +4,9 @@ import json
 import pickle
 import base64
 from dataclasses import asdict
-from .models import Player, MapCell, GameState, GameConfig
+from Model.models import Player, MapCell, GameState, GameConfig
 from .game_manager import GameManager
-from data_access.database_manager import DatabaseManager
+from DAL.database_manager import DatabaseManager
 
 class GameStateManager:
     """游戏状态管理器 - 备忘录模式"""

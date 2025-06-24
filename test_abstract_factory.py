@@ -9,10 +9,10 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from business.abstract_factory import GameFactoryManager, AbstractGameFactory
-from business.concrete_factories import StandardGameFactory, HardModeGameFactory, EasyModeGameFactory
-from business.ai_strategy import AIStrategyFactory
-from business.events import EventFactory, EventProcessor
+from BLL.abstract_factory import GameFactoryManager, AbstractGameFactory
+from BLL.concrete_factories import StandardGameFactory, HardModeGameFactory, EasyModeGameFactory
+from BLL.ai_strategy import AIStrategyFactory
+from BLL.events import EventFactory, EventProcessor
 
 def test_abstract_factory_pattern():
     """测试抽象工厂模式"""
@@ -122,11 +122,11 @@ def test_extensibility():
         """自定义游戏工厂"""
         
         def create_ai_strategy(self, difficulty: str):
-            from business.ai_strategy import HardAIStrategy
+            from BLL.ai_strategy_implementations import HardAIStrategy
             return HardAIStrategy()  # 所有AI都使用困难策略
         
         def create_chance_events(self):
-            from business.models import GameEvent
+            from Model.models import GameEvent
             return [
                 GameEvent(
                     event_type="money",
@@ -137,7 +137,7 @@ def test_extensibility():
             ]
         
         def create_misfortune_events(self):
-            from business.models import GameEvent
+            from entities.models import GameEvent
             return [
                 GameEvent(
                     event_type="money",

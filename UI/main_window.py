@@ -6,9 +6,9 @@ from typing import List, Dict, Any, Optional
 from PIL import Image, ImageTk
 import math
 
-from business.game_manager import GameManager
-from business.models import Player, PlayerType, GameState, CellType
-from business.events import EventObserver
+from BLL.game_manager import GameManager
+from Model.models import Player, PlayerType, GameState, CellType
+from BLL.events import EventObserver
 
 class GameGUI(EventObserver):
     """游戏主界面"""
@@ -730,12 +730,7 @@ class GameGUI(EventObserver):
             info += f"\n描述: {cell.description}"
             
             messagebox.showinfo("格子信息", info)
-    
-    # _add_human_player 方法已移除 - 功能已迁移至开始页面
-    
-    # _add_ai_player 方法已移除 - 功能已迁移至开始页面
-    
-    # _start_game 方法已移除 - 功能已迁移至开始页面，现在使用_auto_start_game
+
     
     def _roll_dice(self):
         """投掷骰子"""

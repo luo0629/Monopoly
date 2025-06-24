@@ -13,18 +13,18 @@ from datetime import datetime
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # 导入业务逻辑层
-from business.game_manager import GameManager
-from business.config_manager import ConfigManager
-from business.game_statistics import StatisticsManager
-from business.game_state_manager import GameStateManager
-from business.models import GameConfig
+from BLL.game_manager import GameManager
+from BLL.config_manager import ConfigManager
+from BLL.game_statistics import StatisticsManager
+from BLL.game_state_manager import GameStateManager
+from Model.models import GameConfig
 
-# 导入数据访问层
-from data_access.database_manager import DatabaseManager
+# 数据访问层
+from DAL.database_manager import DatabaseManager
 
-# 导入表示层
-from presentation.main_window import GameGUI
-from presentation.start_page import StartPage
+# 表示层
+from UI.main_window import GameGUI
+from UI.start_page import StartPage
 
 class MonopolyGameApp:
     """大富翁游戏应用程序主类"""

@@ -1,6 +1,7 @@
 from typing import List, Dict, Any
-from .models import GameEvent
-from .ai_strategy import AIStrategy, EasyAIStrategy, MediumAIStrategy, HardAIStrategy
+from Model.models import GameEvent
+from .ai_strategy_base import AIStrategy
+from .ai_strategy_implementations import EasyAIStrategy, MediumAIStrategy, HardAIStrategy
 from .abstract_factory import AbstractGameFactory
 
 # 具体工厂1：标准游戏工厂
