@@ -1,0 +1,62 @@
+@startuml 游戏管理用例图
+!theme plain
+title 游戏管理用例图
+
+' 样式设置
+skinparam usecase {
+  BackgroundColor LightBlue
+  BorderColor DarkBlue
+  BorderThickness 2
+}
+skinparam actor {
+  BackgroundColor LightGreen
+  BorderColor DarkGreen
+  BorderThickness 2
+}
+skinparam package {
+  BackgroundColor LightYellow
+  BorderColor Orange
+  BorderThickness 1
+}
+skinparam linetype ortho
+skinparam nodesep 40
+skinparam ranksep 50
+
+' 定义参与者
+actor "玩家" as Player
+actor "系统" as System
+
+' 游戏管理用例
+package "游戏管理" {
+  usecase "开始游戏" as UC_StartGame
+  usecase "加载游戏" as UC_LoadGame
+  usecase "保存游戏" as UC_SaveGame
+  usecase "退出游戏" as UC_ExitGame
+  usecase "配置游戏" as UC_ConfigureGame
+}
+
+' 支持用例
+package "支持功能" {
+  usecase "创建玩家" as UC_CreatePlayer
+  usecase "显示游戏板" as UC_DisplayGameBoard
+  usecase "更新界面" as UC_UpdateUI
+}
+
+' 参与者与用例的关系
+Player --> UC_StartGame
+Player --> UC_LoadGame
+Player --> UC_SaveGame
+Player --> UC_ExitGame
+Player --> UC_ConfigureGame
+
+System --> UC_CreatePlayer
+System --> UC_DisplayGameBoard
+System --> UC_UpdateUI
+
+' 包含关系 (include)
+UC_StartGame ..> UC_CreatePlayer : <<include>>
+UC_StartGame ..> UC_DisplayGameBoard : <<include>>
+UC_LoadGame ..> UC_DisplayGameBoard : <<include>>
+UC_SaveGame ..> UC_UpdateUI : <<include>>
+
+@enduml

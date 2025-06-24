@@ -1,0 +1,100 @@
+@startuml 监狱系统用例图
+!theme plain
+title 监狱系统用例图
+
+' 样式设置
+skinparam usecase {
+  BackgroundColor LightBlue
+  BorderColor DarkBlue
+  BorderThickness 2
+}
+skinparam actor {
+  BackgroundColor LightGreen
+  BorderColor DarkGreen
+  BorderThickness 2
+}
+skinparam package {
+  BackgroundColor LightYellow
+  BorderColor Orange
+  BorderThickness 1
+}
+skinparam linetype ortho
+skinparam nodesep 40
+skinparam ranksep 50
+
+' 定义参与者
+actor "玩家" as Player
+actor "AI玩家" as AIPlayer
+actor "系统" as System
+
+' 监狱系统用例
+package "监狱系统" {
+  usecase "进入监狱" as UC_GoToPrison
+  usecase "支付保释金" as UC_PayBail
+  usecase "留在监狱" as UC_StayInPrison
+  usecase "出狱" as UC_ReleaseFromPrison
+  usecase "监狱回合计数" as UC_CountPrisonTurns
+}
+
+' 监狱管理用例
+package "监狱管理" {
+  usecase "检查监狱状态" as UC_CheckPrisonStatus
+  usecase "计算保释金" as UC_CalculateBail
+  usecase "验证保释条件" as UC_ValidateBailConditions
+  usecase "更新玩家状态" as UC_UpdatePlayerStatus
+}
+
+' 决策用例
+package "决策系统" {
+  usecase "AI监狱决策" as UC_AIPrisonDecision
+  usecase "评估保释价值" as UC_EvaluateBailValue
+  usecase "分析游戏状况" as UC_AnalyzeGameSituation
+}
+
+' 界面更新用例
+package "界面更新" {
+  usecase "更新界面" as UC_UpdateUI
+  usecase "显示监狱状态" as UC_DisplayPrisonStatus
+  usecase "显示通知" as UC_ShowNotifications
+}
+
+' 参与者与用例的关系
+Player --> UC_PayBail
+Player --> UC_StayInPrison
+
+AIPlayer --> UC_AIPrisonDecision
+AIPlayer --> UC_PayBail
+AIPlayer --> UC_StayInPrison
+
+System --> UC_GoToPrison
+System --> UC_ReleaseFromPrison
+System --> UC_CountPrisonTurns
+System --> UC_CheckPrisonStatus
+System --> UC_CalculateBail
+System --> UC_ValidateBailConditions
+System --> UC_UpdatePlayerStatus
+System --> UC_EvaluateBailValue
+System --> UC_AnalyzeGameSituation
+System --> UC_UpdateUI
+System --> UC_DisplayPrisonStatus
+System --> UC_ShowNotifications
+
+' 包含关系 (include)
+UC_GoToPrison ..> UC_UpdatePlayerStatus : <<include>>
+UC_GoToPrison ..> UC_UpdateUI : <<include>>
+UC_PayBail ..> UC_ValidateBailConditions : <<include>>
+UC_PayBail ..> UC_CalculateBail : <<include>>
+UC_PayBail ..> UC_ReleaseFromPrison : <<include>>
+UC_StayInPrison ..> UC_CountPrisonTurns : <<include>>
+UC_StayInPrison ..> UC_CheckPrisonStatus : <<include>>
+UC_ReleaseFromPrison ..> UC_UpdatePlayerStatus : <<include>>
+UC_ReleaseFromPrison ..> UC_UpdateUI : <<include>>
+UC_AIPrisonDecision ..> UC_EvaluateBailValue : <<include>>
+UC_AIPrisonDecision ..> UC_AnalyzeGameSituation : <<include>>
+
+' 扩展关系 (extend)
+UC_GoToPrison ..> UC_DisplayPrisonStatus : <<extend>>
+UC_ReleaseFromPrison ..> UC_ShowNotifications : <<extend>>
+UC_CountPrisonTurns ..> UC_ReleaseFromPrison : <<extend>>
+
+@enduml

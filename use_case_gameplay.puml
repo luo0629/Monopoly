@@ -1,0 +1,95 @@
+@startuml 游戏玩法用例图
+!theme plain
+title 游戏玩法用例图
+
+' 样式设置
+skinparam usecase {
+  BackgroundColor LightBlue
+  BorderColor DarkBlue
+  BorderThickness 2
+}
+skinparam actor {
+  BackgroundColor LightGreen
+  BorderColor DarkGreen
+  BorderThickness 2
+}
+skinparam package {
+  BackgroundColor LightYellow
+  BorderColor Orange
+  BorderThickness 1
+}
+skinparam linetype ortho
+skinparam nodesep 40
+skinparam ranksep 50
+
+' 定义参与者
+actor "玩家" as Player
+actor "AI玩家" as AIPlayer
+actor "系统" as System
+
+' 游戏玩法用例
+package "游戏玩法" {
+  usecase "掷骰子" as UC_RollDice
+  usecase "移动玩家" as UC_MovePlayer
+  usecase "购买房产" as UC_PurchaseProperty
+  usecase "升级房产" as UC_UpgradeProperty
+  usecase "支付租金" as UC_PayRent
+  usecase "收取租金" as UC_CollectRent
+  usecase "撤销购买" as UC_UndoPurchase
+}
+
+' 房产管理用例
+package "房产管理" {
+  usecase "检查房产状态" as UC_CheckPropertyStatus
+  usecase "计算租金" as UC_CalculateRent
+  usecase "更新房产信息" as UC_UpdatePropertyInfo
+  usecase "验证购买条件" as UC_ValidatePurchase
+}
+
+' 界面更新用例
+package "界面更新" {
+  usecase "更新界面" as UC_UpdateUI
+  usecase "显示游戏板" as UC_DisplayGameBoard
+  usecase "显示通知" as UC_ShowNotifications
+}
+
+' 参与者与用例的关系
+Player --> UC_RollDice
+Player --> UC_PurchaseProperty
+Player --> UC_UpgradeProperty
+Player --> UC_UndoPurchase
+
+AIPlayer --> UC_RollDice
+AIPlayer --> UC_PurchaseProperty
+AIPlayer --> UC_UpgradeProperty
+
+System --> UC_MovePlayer
+System --> UC_PayRent
+System --> UC_CollectRent
+System --> UC_CheckPropertyStatus
+System --> UC_CalculateRent
+System --> UC_UpdatePropertyInfo
+System --> UC_ValidatePurchase
+System --> UC_UpdateUI
+System --> UC_DisplayGameBoard
+System --> UC_ShowNotifications
+
+' 包含关系 (include)
+UC_RollDice ..> UC_MovePlayer : <<include>>
+UC_MovePlayer ..> UC_UpdateUI : <<include>>
+UC_PurchaseProperty ..> UC_ValidatePurchase : <<include>>
+UC_PurchaseProperty ..> UC_UpdatePropertyInfo : <<include>>
+UC_PurchaseProperty ..> UC_UpdateUI : <<include>>
+UC_UpgradeProperty ..> UC_CheckPropertyStatus : <<include>>
+UC_UpgradeProperty ..> UC_UpdatePropertyInfo : <<include>>
+UC_UpgradeProperty ..> UC_UpdateUI : <<include>>
+UC_UndoPurchase ..> UC_UpdatePropertyInfo : <<include>>
+UC_UndoPurchase ..> UC_UpdateUI : <<include>>
+
+' 扩展关系 (extend)
+UC_PayRent ..> UC_MovePlayer : <<extend>>
+UC_CollectRent ..> UC_MovePlayer : <<extend>>
+UC_PayRent ..> UC_CalculateRent : <<extend>>
+UC_CollectRent ..> UC_CalculateRent : <<extend>>
+
+@enduml

@@ -1,0 +1,81 @@
+@startuml 大富翁游戏简化用例图
+!theme plain
+title 大富翁游戏系统用例图（简化版）
+
+' 样式设置
+skinparam usecase {
+  BackgroundColor LightBlue
+  BorderColor DarkBlue
+  BorderThickness 2
+}
+skinparam actor {
+  BackgroundColor LightGreen
+  BorderColor DarkGreen
+  BorderThickness 2
+}
+skinparam package {
+  BackgroundColor LightYellow
+  BorderColor Orange
+  BorderThickness 1
+}
+skinparam linetype ortho
+skinparam nodesep 40
+skinparam ranksep 50
+
+' 定义参与者
+actor "玩家" as Player
+actor "AI玩家" as AIPlayer
+actor "系统" as System
+
+' 核心游戏功能
+package "游戏管理" {
+  usecase "开始游戏" as UC_StartGame
+  usecase "保存/加载游戏" as UC_SaveLoad
+  usecase "退出游戏" as UC_ExitGame
+}
+
+package "游戏玩法" {
+  usecase "掷骰子移动" as UC_RollMove
+  usecase "购买房产" as UC_BuyProperty
+  usecase "支付租金" as UC_PayRent
+  usecase "处理特殊事件" as UC_HandleEvents
+}
+
+package "监狱系统" {
+  usecase "进入监狱" as UC_GoToPrison
+  usecase "出狱" as UC_ExitPrison
+}
+
+package "AI策略" {
+  usecase "AI自动决策" as UC_AIDecision
+}
+
+package "统计报告" {
+  usecase "查看游戏统计" as UC_ViewStats
+}
+
+' 参与者与用例的关系
+Player --> UC_StartGame
+Player --> UC_SaveLoad
+Player --> UC_ExitGame
+Player --> UC_RollMove
+Player --> UC_BuyProperty
+Player --> UC_PayRent
+Player --> UC_ExitPrison
+Player --> UC_ViewStats
+
+AIPlayer --> UC_RollMove
+AIPlayer --> UC_AIDecision
+
+System --> UC_HandleEvents
+System --> UC_GoToPrison
+
+' 包含关系
+UC_RollMove ..> UC_HandleEvents : <<include>>
+UC_AIDecision ..> UC_BuyProperty : <<include>>
+UC_AIDecision ..> UC_ExitPrison : <<include>>
+
+' 泛化关系
+AIPlayer --|> Player : 继承
+
+@enduml

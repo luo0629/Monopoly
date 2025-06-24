@@ -1,0 +1,68 @@
+@startuml 玩家管理用例图
+!theme plain
+title 玩家管理用例图
+
+' 样式设置
+skinparam usecase {
+  BackgroundColor LightBlue
+  BorderColor DarkBlue
+  BorderThickness 2
+}
+skinparam actor {
+  BackgroundColor LightGreen
+  BorderColor DarkGreen
+  BorderThickness 2
+}
+skinparam package {
+  BackgroundColor LightYellow
+  BorderColor Orange
+  BorderThickness 1
+}
+skinparam linetype ortho
+skinparam nodesep 40
+skinparam ranksep 50
+
+' 定义参与者
+actor "玩家" as Player
+actor "AI玩家" as AIPlayer
+actor "系统" as System
+
+' 玩家管理用例
+package "玩家管理" {
+  usecase "创建玩家" as UC_CreatePlayer
+  usecase "选择玩家类型" as UC_SelectPlayerType
+  usecase "管理玩家信息" as UC_ManagePlayerInfo
+  usecase "设置玩家属性" as UC_SetPlayerAttributes
+  usecase "验证玩家信息" as UC_ValidatePlayerInfo
+}
+
+' AI策略用例
+package "AI策略" {
+  usecase "AI决策" as UC_MakeAIDecision
+  usecase "AI购买房产" as UC_AIBuyProperty
+  usecase "AI升级房产" as UC_AIUpgradeProperty
+  usecase "AI监狱决策" as UC_AIPrisonDecision
+}
+
+' 参与者与用例的关系
+Player --> UC_CreatePlayer
+Player --> UC_SelectPlayerType
+Player --> UC_ManagePlayerInfo
+
+AIPlayer --> UC_MakeAIDecision
+AIPlayer --> UC_AIBuyProperty
+AIPlayer --> UC_AIUpgradeProperty
+AIPlayer --> UC_AIPrisonDecision
+
+System --> UC_SetPlayerAttributes
+System --> UC_ValidatePlayerInfo
+
+' 包含关系 (include)
+UC_CreatePlayer ..> UC_SetPlayerAttributes : <<include>>
+UC_CreatePlayer ..> UC_ValidatePlayerInfo : <<include>>
+UC_SelectPlayerType ..> UC_SetPlayerAttributes : <<include>>
+
+' 泛化关系
+AIPlayer --|> Player : 继承
+
+@enduml
